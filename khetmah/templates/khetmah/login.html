@@ -1,0 +1,28 @@
+
+
+    <div class="container1 wi-0">
+            <h2><i class="fa fa-user-circle-o"></i></h2>
+        <h2 id="shadow-2">Login</h2>
+        {% if message %}
+              <div class="error">{{ message }}</div>
+        {%else%}
+        <br>
+        {% endif %}
+    <form id="login-form" action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+
+    <input type="hidden" name="next" value="{{ next }}">
+
+    <div class="form-group">
+        <input autofocus class="form-control" type="text" name="username" placeholder="Username" required>
+    </div>
+
+    <div class="form-group">
+        <input class="form-control" type="password" name="password" placeholder="Password" required>
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Login">
+</form>
+<br>
+    Don't have an account? <a href="#" class="open-register">Register here</a>
+</div>

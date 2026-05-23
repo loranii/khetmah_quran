@@ -1,0 +1,55 @@
+
+{% load static %}
+
+{% block content %}
+<br>
+{% if user.is_authenticated %}
+  <h2 id="shadow-2">Profile <b id="shadow-1">{{ user.username }}</b></h2>
+  <img id="profile-preview" src="{{ user.profile_picture_url }}" alt="{{ user.username }}" style="width: 200px; border-radius: 50%;">
+  <div id="center">
+    <h2>{{ user.first_name }} {{user.last_name}} أهلا بك </h2>
+    <p>هذه صفحتك الشخصية</p>
+  </div>
+  <div id="profile" class="container1 wi-0">
+    <form id="profile-form" method="POST" action="/profile" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+      </div>
+
+      <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+      </div>
+
+      <div class="form-group">
+        <label for="password">New Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+      </div>
+
+      <div class="form-group">
+        <label for="profile_picture" class="start">Profile Picture</label>
+        <input type="file" class="form-control-file" id="profile_picture" name="profile_picture" accept="image/*">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+{% else %}
+  <div class="alert alert-danger" id="shadow-1">
+    <a href="{% url 'login' %}">Log In</a> / <a href="{% url 'register' %}">Register</a> 😊
+  </div>
+{% endif %}
+{% endblock %}

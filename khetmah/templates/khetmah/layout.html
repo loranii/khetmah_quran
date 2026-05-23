@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}<title>ختمة القرآن</title>{% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap">
+    <link rel="stylesheet" href="{% static 'khetmah/css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+
+    <!-- رأس الصفحة -->
+    <header>
+      <div id="currentkhetmahId" data-khetmah-id="{{ khetmah.id }}"></div>
+      <div id="Authenticated" data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"></div>
+    <!--  -->    
+
+
+    <div class="container" id="f-18">
+<!-- <h2 id="shadow-1">ختمة القرآن الكريم</h2> -->
+  <ul class="nav">
+    <li class="nav-item">
+       <a class="nav-link" href="{% url 'index' %}"> <i class="fa fa-home" title="Home"></i> الختمات</a>
+    </li>
+      {% if user.is_authenticated %}
+
+      
+     <li>
+          <a class="nav-link" href="{% url 'create_khetmah' %}"><i class="fa fa-book" title="book"></i> إنشاء ختمة</a>
+     </li>
+
+     <li class="nav-item">
+        <a class="nav-link" href="{% url 'get_archives' %}"><i class="fa fa-archive" aria-hidden="true"></i> الارشيف</a>
+     </li> 
+     
+     <li class="nav-item user-menu-wrapper">
+        <div id="user-menu-toggle" class="user-menu-toggle">
+            <img src="{{ user.profile_picture_url }}"alt="{{ user.username }}"class="user-avatar">
+            <b id="currentUser" style="color:rgb(81, 2, 154)">{{ user }}</b><i class="fa fa-caret-down"></i>
+        </div>
+        <!-- DROPDOWN -->
+        <div id="user-dropdown" class="user-dropdown hidden">
+          <a href="#" id="open-profile-modal"><i class="fa fa-user"></i>Profile</a>
+          <a href="{% url 'logout' %}"><i class="fa fa-sign-out"></i>Logout</a>
+        </div>
+    </li>
+     <!-- لجلب الاجزاء التي في جعبة المستخدم الحالي -->
+     <script>window.currentUser = "{{ user.username }}"</script>    
+     {% else %}
+      <li class="nav-item">
+                <a href="#" class="nav-link open-register"><i class="fa fa-registered" title="Register"></i> إنشاء حساب</a>
+            </li>
+      <li class="nav-item">
+                <a href="#" class="nav-link open-login"><i class="fa fa-sign-in" title="Login"></i> تسجيل الدخول</a>
+            </li>
+            <script>window.currentUser = null</script>
+      {% endif %}
+      </ul>
+</div>
+</header>
+    <!-- محتوى الصفحات -->
+    
+        {% block content %}
+        
+{% if messages %}
+  <div class="container">
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+    {% endblock %}
+   
+    <!-- JS عام -->
+    {% block script %}
+      <script src="{% static 'khetmah/js/main.js' %}"></script>
+      <script>window.currentUser = "{{ request.user.username }}"</script>
+    {% endblock %}
+    
+    <div id="auth-modal" class="auth-modal hidden">
+        <div class="auth-overlay"></div>
+        <div class="auth-box">
+          <button id="close-auth-modal" class="close-btn">&times;</button>
+        <div id="auth-content"></div>
+      </div>
+    </div>
+
+        <!-- PROFILE MODAL -->
+
+    <div id="profile-modal" class="auth-modal hidden">
+        <div class="auth-overlay"></div>
+        <div class="auth-box profile-box">
+          <button id="close-profile-modal" class="close-btn">&times;</button>
+            <div id="profile-modal-content"></div>
+        </div>
+    </div>
+    
+</body>
+</html>

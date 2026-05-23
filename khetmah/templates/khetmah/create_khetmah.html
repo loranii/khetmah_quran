@@ -1,0 +1,212 @@
+{% extends "khetmah/layout.html" %}
+{% load static %}
+
+{% block title %}
+<title>إنشاء ختمة جديدة</title>
+{% endblock %}
+
+{% block content %}
+
+<div
+    id="Authenticated"
+    data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+</div>
+
+<h3>إنشاء ختمة جديدة</h3>
+
+<div class="row card-1">
+
+    <!-- ========================= -->
+    <!-- GRID -->
+    <!-- ========================= -->
+
+    <div class="jezaa-container">
+
+        <div class="col">
+
+            <div class="status-indicators">
+
+                <div class="available">
+                    متاح
+                </div>
+
+                <div class="taken">
+                    محجوز
+                </div>
+
+                <div class="read">
+                    مقروء
+                </div>
+
+            </div>
+
+            <div id="create" class="grid">
+
+                {% for i in numbers %}
+
+                <div
+                    class="button available"
+                    data-jezaa="{{ i }}">
+
+                    {{ i }}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        <!-- ========================= -->
+        <!-- TABLE -->
+        <!-- ========================= -->
+
+        <div class="column_1">
+
+            <h5 class="center">
+                معلومات الأجزاء
+            </h5>
+
+            <div class="jezaa-info">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>رقم الجزء</th>
+                            <th>بداية الجزء</th>
+                            <th>السورة</th>
+                            <th>الصفحة</th>
+                            <th>نهاية الجزء</th>
+                            <th>السورة</th>
+                            <th>الصفحة</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<br>
+
+<!-- ========================= -->
+<!-- REASON -->
+<!-- ========================= -->
+
+<div class="col">
+
+    <div>
+
+        <select
+            id="reason-select"
+            name="reason"
+            class="form-control"
+            style="direction: rtl; margin: 0 auto;"
+            required>
+
+            <option value="Thank_God">
+                -- 📌 سبب الختمة --
+            </option>
+
+            <option value="dead">
+                هبة لمتوفي
+            </option>
+
+            <option value="need">
+                لطلب حاجة
+            </option>
+
+            <option value="sick">
+                لطلب شفاء
+            </option>
+
+            <option value="travel">
+                السفر
+            </option>
+
+            <option value="Thank_God">
+                شكر لله تعالى
+            </option>
+
+            <option value="days">
+                أيام فضيلة
+            </option>
+
+            <option value="other">
+                سبب أخر
+            </option>
+
+        </select>
+
+        <!-- تفاصيل السبب -->
+        <div
+            id="reason-detail"
+            class="mt-3 reson_creat">
+        </div>
+
+        <br>
+
+        <!-- ========================= -->
+        <!-- SHARING TYPE -->
+        <!-- ========================= -->
+
+        <div class="reason_sharing">
+
+            <select
+                id="privacy-select"
+                name="privacy"
+                class="form-select form-control"
+                style="direction: rtl; margin: 0 auto;"
+                required>
+
+                <option value="family_friends">
+                    نوع المشاركة 👥
+                </option>
+
+                <option value="family_friends">
+                    الأهل / الأصدقاء
+                </option>
+
+                <option value="public">
+                    عام / Public
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+</div>
+
+<br>
+
+<!-- ========================= -->
+<!-- CREATE BUTTON -->
+<!-- ========================= -->
+
+<div class="text-center">
+
+    <button
+        id="create-khetmah-btn"
+        disabled
+        class="btn btn-success px-5 py-2 fs-5 rounded-pill">
+
+        🚀 إنشاء الختمة
+
+    </button>
+
+</div>
+
+{% endblock %}

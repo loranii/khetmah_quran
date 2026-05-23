@@ -1,0 +1,258 @@
+{% extends "khetmah/layout.html" %}
+{% block content %}
+{% load static %}
+
+<div id="allPartsData" class="hidden">{{ all_parts_json|safe }}</div>
+<div id="allKhetmahsData" class="hidden">
+  {{ all_khetmahs_json|safe }}
+</div>
+<div id="khetmah_detail" data-page="khetmah_detail"></div>
+<div id="is_I_creator"  class="hidden" data-username="{{ parts.0.is_I_creator }}">{{ parts.0.is_I_creator }}</div> 
+
+<div class="row d-flex mt-0 pt-0 align-items-start justify-content-around">
+
+<!-- start col section-->    
+<div class="col_1">
+            <!-- Search Box -->
+        <div class="search-box mb-3" style=" margin: 0 auto;">
+            <input type="text" id="search-khetmah" placeholder="Search...">
+            <i class="fa fa-search"></i>
+        </div>
+            <select id="status" name="status" class="form-control" style="direction: rtl; margin: 0 auto;" required>
+                <option value="active">الختمات النشطة</option>
+                <option value="All">كل الختمات</option>
+                <option value="archived">الختمات المؤرشفة</option>
+                <option value="completed">الختمات المنتهية</option>
+            </select>
+        <br>
+
+
+    <ul id="khetmah-list" class="nav flex-column">
+      <!--  هون لح تظهر قائمة الختمات يتم حقنها من الجافاسركيبت -->
+    </ul>
+
+    <p id="empty-message" style="text-align:center; display:none;"></p>
+
+</div>  
+<!-- end col section -->
+
+<div class="container1">
+<div class="row_1 d-flex mt-0 pt-0" style="direction: ltr;">
+
+<div id="kh_status">
+     <span class="alert alert-info d-flex align-items-center gap-2">
+
+        <!-- هنا يتم حقن حالة الختمة  -->
+        <span id="khetmah-actions"></span>
+
+        <span id="khetmah_status" data-khetmahStatus="{{ khetmah.status }}"> &nbsp;&nbsp; {{ khetmah.status }}
+            
+            &nbsp;&nbsp;</span>: حالة الختمة &nbsp;&nbsp;</span>
+</div>       
+    <div class="alert alert-info" style="color: rgb(81, 81, 81)"><i class="fa fa-calendar fa-fw w3-margin-right"></i>&nbsp; {{ khetmah.created_at }} تاريخ </div>    
+
+    <div class="hidden" id="kh_creator">{{ khetmah.creator }}</div>
+</div>     
+
+  <div class="row_1 d-flex mt-0 pt-0">
+  <div class="reason-container
+    {% if is_I_creator and khetmah.reason != 'dead' %}
+        without-buttons
+    {% elif not is_I_creator and khetmah.reason == 'dead' %}
+        without-buttons-dead
+    {% elif is_I_creator and khetmah.reason == 'dead' %} 
+       with-buttons-dead
+    {% else%} 
+       without-buttons   
+    {% endif %}">
+    <!-- سبب الختمة -->
+    <div class="form-control">
+        سبب الختمة : {{ khetmah.get_reason_display }}
+        {% if khetmah.specific_reason %}
+            / <b style="color: brown;">{{ khetmah.specific_reason }}</b>
+        {% endif %}
+    </div>
+
+
+    <!-- إذا السبب متوفي -->
+    {% if khetmah.reason == "dead" %}
+        <div class="form-control">اسم المتوفي : {{ khetmah.deceased_name }} / <span ><span id="toggle-link" style="color: blue; text-decoration: none; cursor: pointer; background-color: rgb(196, 196, 196); padding: 5px;border-radius: 5px;">النعوة</span></span> </div>
+        <div class="form-control">تاريخ الوفاة : {{ khetmah.death_date }} </div>
+    {% endif %}
+
+    <!-- مكان الأزرار إذا أنا منشئ الختمة والسبب مو متوفي -->
+    {% if is_I_creator and khetmah.reason != "dead" %}
+        <div class="buttons_container"></div>
+    {% endif %}
+    <!-- نوع المشاركة -->
+    <div class="form-control">
+        نوع المشاركة : {{ khetmah.get_sharing_type_display }}
+    </div>
+</div>
+</div>
+
+<!-- مكان الأزرار إذا انا منشئ الختمة والسبب متوفي -->
+{% if is_I_creator and khetmah.reason == "dead" %}
+  <div class="buttons_container"></div>
+{% endif %}
+
+
+<!-- النعوة -->
+    
+{% if khetmah.reason == "dead" %}
+<div>
+    <div>
+        
+    </div> 
+
+    <div class="hidden" id="na3wa-img">
+        <h1 style="background-color: rgba(217, 249, 216, 0.719); padding: 10px; border-bottom: 4px solid rgb(50, 50, 50);">النعوة</h1>
+        
+       <p class="aya"><img src="{% static 'khetmah/img/aya_stop.png' %}"><strong>ٱلَّذِینَ إِذَاۤ أَصَـٰبَتۡهُم مُّصِیبَةࣱ قَالُوۤا۟ إِنَّا لِلَّهِ وَإِنَّاۤ إِلَیۡهِ رَ ٰ⁠جِعُونَ</strong><img src="{% static 'khetmah/img/aya_stop.png' %}"></p>
+       <hr>
+            {% if khetmah.na3wa_image %}
+                <img id="na3wa-preview" src="{{ khetmah.na3wa_image.url }}" class="img-fluid mb-3">
+            {% else %}
+                <h3>لم يتم إرفاق نعوة</h3>
+                <img id="na3wa-preview" src="/media/khetmah/images/na3wa_pictures/not-available.png" class="img-fluid mb-3">
+            {% endif %}
+                    {% if user.is_authenticated and user == khetmah.creator %}
+             <hr>
+             <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                  <label>تغيير صورة النعوة</label>
+                  <input type="file" id="na3wa_image_input" name="na3wa_image" accept="image/*">
+              </div>
+
+              <button type="submit" class="btn btn-primary">حفظ الصورة</button>
+          </form>
+        {% endif %}
+        </div>
+
+    </div>
+    
+{% endif %}
+<!-- انتهاء قسم النعوة-->
+
+
+
+<div class="jezaa-container">
+<div class="column">
+        <div class="alert alert-info"><img src="{{ khetmah.creator.profile_picture_url }}" class="img_c"><b> {{ khetmah.creator }} : طالب الختمة</b></div>
+      {% if user.is_authenticated %}
+        {% if is_I_creator and khetmah.status == "active" %}
+        <h6 class="alert-success wi-2wi-2"> تستطيع ان تتحكم بحالة كامل أجزاء ختمتك</h6>
+        {% elif user != khetmah.creator  and khetmah.status == "active" %}
+           <h6 class="alert-info wi-2">للإشتراك في هذه الختمة إختر الأجزاء التي تريد حجزها</h6>
+        {% elif is_I_creator and khetmah.status == "completed" %}
+        <br>
+            <h6 class="alert-danger wi-0">ختمتك هذه اكتملت تقبل الله</h6>
+         
+        {% elif is_I_creator and khetmah.status == "archived" %}
+        <br>
+            <h6 class="alert-success wi-0">ختمتك مؤرشفة</h6>    
+        {% elif  user !=  khetmah.creator and khetmah.status == "completed" %}
+            <h6 class="alert-danger wi-1">هذه الختمة مكتملة لا يمكن الاشتراك فيها</h6>
+        {% elif  user !=  khetmah.creator and khetmah.status == "archived" %}
+            <h6 class="alert-danger wi-1">هذه الختمة مؤرشفة لا يمكن الاشتراك فيها</h6>   
+        {% endif %}
+    {% else %}
+            {% if khetmah.status == "completed" and user.is_authenticated %}
+              <h6 class="alert-danger wi-3">هذه الختمة مكتملة لا يمكن المشاركة فيها</h6>
+            <br>
+             <h6 class="alert-danger wi-3"><a href="#" class="open-login">تسجيل الدخول</a>&nbsp; أو &nbsp;<a href="#" class="open-register"> إنشاء حساب </a>&nbsp; لإنشاء ختمة او المشاركة في ختمة نشطة يجب عليك  </h6>
+            {% elif khetmah.status == "archived" and not user.is_authenticated %}
+              <h6 class="alert-danger wi-1">هذه الختمة مؤرشفة لا يمكن المشاركة فيها</h6>
+             <h6 class="alert-danger wi-2"><a href="#" class="open-register">إنشاء حساب</a>&nbsp; أو &nbsp;<a href="#" class="open-login">تسجيل الدخول</a>&nbsp; لإنشاء ختمة او المشاركة في ختمة نشطة يجب عليك  </h6>
+            {% else %}
+             <h6 class="alert-danger wi-1"><a href="#" class="open-register">إنشاء حساب</a>&nbsp; أو &nbsp;<a href="#" class="open-login">تسجيل الدخول</a>&nbsp; للمشاركة في هذه الختمة يجب عليك </h6>
+            {% endif %}
+    {% endif %}
+<div class="status-indicators">
+    <div class="available shadow-2">متاح</div>
+    <div class="taken shadow-2">محجوز</div>
+    <div class="read shadow-2">مقروء</div>
+</div>
+
+<div id="jezaa-card" class="grid"></div>
+</div>
+
+<div class="column_1">
+<h5 class="status-indicators">معلومات الاجزاء</h5>
+<span id="about_jezaa">
+
+  <div>
+    <span>أجزاءك التي قمت بحجزها :</span>
+
+    <a id="taken-link" href="#">
+      <b id="taken-count" title="انقر هنا لعرضها">0</b>
+    </a>
+  </div>
+
+  <div>
+    <span>أجزاءك التي قمت بقراءتها :</span>
+
+    <a id="read-link" href="#">
+      <b id="read-count" title="انقر هنا لعرضها">0</b>
+    </a>
+  </div>
+
+  <div>
+    <span>المجموع :</span>
+    <b id="total-count">0</b>
+  </div>
+
+</span>
+
+
+<div class="jezaa-info">    
+<table>
+    <thead>
+        <tr>
+        <th>رقم الجزء</th>
+        <th>بداية الجزء</th>
+        <th>السورة</th>
+        <th>الصفحة</th>
+        <th>نهاية الجزء</th>
+        <th>السورة</th>
+        <th>الصفحة</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- هنا يتم ادخال تفاصيل الاجزاء عند اختيار اي جزء -->
+    </tbody>
+</table>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+</div> <!--   row  -->
+
+<!-- USER READ KHETMAHS MODAL -->
+<div id="user-read-modal" class="custom-modal hidden">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h5>
+                الختمات التي شاركت بها
+            </h5>
+
+            <button id="close-user-read-modal" class="close-btn">
+                ×
+            </button>
+
+        </div>
+
+        <ul id="user-read-khetmah-list"
+            class="nav flex-column">
+        </ul>
+
+    </div>
+
+</div>
+{% endblock %}

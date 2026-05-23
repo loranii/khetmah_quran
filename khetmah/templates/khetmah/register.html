@@ -1,0 +1,44 @@
+
+
+
+
+    <div class="container1 wi-0">
+        <h2 id="shadow-2">Register</h2>
+{% if message %}
+    <div class="error">
+        {{ message|safe }}
+    </div>
+        {%else%}
+        <br>
+        {% endif %}
+        
+        <form id="register-form" action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <input class="form-control" autofocus type="text" name="username" placeholder="Username" required>
+        </div>
+          <div class="form-group">
+            <input class="form-control" autofocus type="text" name="First_Name" placeholder="First Name" maxlength="16" required>
+          </div>
+          <div class="form-group">
+            <input class="form-control" autofocus type="text" name="Last_Name" placeholder="Last Name" maxlength="16" required>
+          </div>
+        <div class="form-group">
+            <input class="form-control" type="email" name="email" placeholder="Email Address" required>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" name="password" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password" required>
+        </div>
+        <div class="form-group">
+            <div class="start">Profile picture : <i class="fa fa-camera"></i></div>
+            {{ form.profile_picture }}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <input class="btn btn-primary" type="submit" value="Register">
+    </form>
+     
+    Already have an account? <a href="#" class="open-login">Log In here.</a>
+</div>
