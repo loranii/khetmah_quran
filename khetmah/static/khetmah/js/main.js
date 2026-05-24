@@ -1,3 +1,54 @@
+// main.js
+
+//سوكيت
+/******************************
+ * WEBSOCKET
+ ******************************/
+
+let socket = null;
+
+function initWebSocket() {
+
+    if (!AppState.currentKhetmahId) return;
+
+    const protocol =
+        window.location.protocol === "https:"
+            ? "wss"
+            : "ws";
+
+    socket = new WebSocket(
+        `${protocol}://${window.location.host}/ws/khetmah/${AppState.currentKhetmahId}/`
+    );
+
+    socket.onopen = () => {
+
+        console.log("WebSocket Connected");
+    };
+
+    socket.onclose = () => {
+
+        console.log("WebSocket Closed");
+
+        // reconnect
+        setTimeout(() => {
+            initWebSocket();
+        }, 3000);
+    };
+
+    socket.onerror = (e) => {
+
+        console.error("WebSocket Error", e);
+    };
+
+    socket.onmessage = (e) => {
+
+        const data = JSON.parse(e.data);
+
+        handleRealtimeUpdate(data);
+    };
+}
+
+
 /******************************
  * GLOBAL STATE (ONE SOURCE ONLY)
  ******************************/
@@ -52,6 +103,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     initGlobals();
     parseData();
+    //سوكيت
+    initWebSocket();
 
     await loadUserState();
 
@@ -1144,6 +1197,20 @@ try {
     updateLocal(box, num, next);
 
 
+    // سوكيت
+    // realtime broadcast
+    if (socket && socket.readyState === WebSocket.OPEN) {
+
+        socket.send(JSON.stringify({
+
+            part_number: num,
+
+            status: next,
+
+            username: AppState.user.username
+        }));
+    }
+
     // إعادة مزامنة الحالة من السيرفر
     await loadUserState();
 
@@ -1163,6 +1230,72 @@ try {
 catch (e) {
     console.error(e);
 }
+}
+
+//سوكيت
+/******************************
+ * REALTIME UPDATE
+ ******************************/
+
+function handleRealtimeUpdate(data) {
+
+    console.log("Realtime", data);
+
+    const num = parseInt(data.part_number);
+
+    const status = data.status;
+
+    const username = data.username;
+
+    // تحديث AppState.parts
+    const part = AppState.parts.find(
+        p => parseInt(p.number) === num
+    );
+
+    if (!part) return;
+
+    part.status = status;
+
+    part.selected_by =
+        status === "available"
+            ? ""
+            : username;
+
+    // تحديث الزر
+    const box = document.querySelector(
+        `[data-jezaa="${num}"]`
+    );
+
+    if (!box) return;
+
+    box.classList.remove(
+        "available",
+        "taken",
+        "read"
+    );
+
+    box.classList.add(status);
+
+    // available
+    if (status === "available") {
+
+        box.innerHTML = `
+            <div>${num}</div>
+        `;
+
+        box.style.border = "none";
+    }
+
+    // taken/read
+    else {
+
+        box.innerHTML = `
+            <div>${num}</div>
+            <div style="font-size:10px;">
+                ${username}
+            </div>
+        `;
+    }
 }
 
 
