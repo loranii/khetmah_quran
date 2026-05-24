@@ -720,7 +720,7 @@ function renderKhetmahCard(kh) {
                                         font-weight:bold;
                                         font-size:13px;
                                     ">
-                                    هنا  أنت قرأت
+                                    هنا قرأت أنت
                              (${kh.read_parts_count}) 
                                    جزء
                                 </span>
