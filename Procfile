@@ -1,1 +1,1 @@
-web: gunicorn quran_new_khetmah.wsgi
+web: python manage.py migrate && gunicorn quran_new_khetmah.wsgi
