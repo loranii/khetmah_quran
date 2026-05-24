@@ -133,16 +133,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # إعدادات الملفات الثابتة
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'khetmah/static'),
 ]
 
-
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MIDDLEWARE  = [
+        'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    'django.contrib.sessions.middleware.SessionMiddleware',]
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
