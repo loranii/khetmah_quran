@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --noinput && gunicorn quran_new_khetmah.wsgi
+web: python manage.py migrate && python manage.py collectstatic --noinput && daphne quran_new_khetmah.asgi:application
