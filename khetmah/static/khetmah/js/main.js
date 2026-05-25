@@ -6,6 +6,7 @@
  ******************************/
 
 let socket = null;
+let reconnectInterval = null;
 
 function initWebSocket() {
 
@@ -29,9 +30,16 @@ function initWebSocket() {
 
         console.log("WebSocket Closed");
 
-        // reconnect
-        setTimeout(() => {
-            initWebSocket();
+        if (reconnectInterval) {
+            clearTimeout(reconnectInterval);
+        }
+
+        reconnectInterval = setTimeout(() => {
+
+            if (document.visibilityState === "visible") {
+                initWebSocket();
+            }
+
         }, 3000);
     };
 
@@ -1189,9 +1197,6 @@ try {
     }
 
     if (data.success && data.action !== "forced_taken") {
-
-    updateLocal(box, num, next);
-
 
     // سوكيت
     // realtime broadcast

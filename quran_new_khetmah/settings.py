@@ -26,7 +26,12 @@ SECRET_KEY = 'django-insecure-hxw!l1xvh462b+eh36^1%-h8)v#o)9(s(2a-137d^kggw_oia4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "khetmah.up.railway.app",
+    "web-production-5cda0e.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -173,7 +178,11 @@ LOGIN_URL = '/login'
 
 CSRF_TRUSTED_ORIGINS = [
     "https://khetmah.up.railway.app",
+    "https://web-production-5cda0e.up.railway.app",
 ]
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
