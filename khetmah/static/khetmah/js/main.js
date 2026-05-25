@@ -278,6 +278,8 @@ function initProfileModal() {
     );
 }
 
+
+
 document.addEventListener("submit", async function (e) {
 
     if (!e.target.matches("#profile-form")) return;
@@ -1041,6 +1043,7 @@ function renderParts() {
             }
         }
 
+
         // =========================
         // اظهار معلومات الجدول
         // =========================
@@ -1054,25 +1057,16 @@ function renderParts() {
         // منع التعديل على أجزاء الآخرين
         // ==================================
 
-        const isMine =
-            part.selected_jezaa_by_I === true;
+        const isMine = part.selected_jezaa_by_I === true;
 
-        const isAvailable =
-            part.status === "available";
+        const isAvailable = part.status === "available";
 
-        const isCreator =
-            part.is_I_creator === true;
+        const isCreator = part.is_I_creator === true;
 
-        if (
-            !isAvailable &&
-            !isMine &&
-            !isCreator
-        ) {
+        if (!isAvailable && !isMine && !isCreator) {
 
             box.style.pointerEvents = "none";
-
             box.style.cursor = "not-allowed";
-
             box.style.border ="2px dotted black";
             box.style.opacity = "0.6";
         }
@@ -1236,8 +1230,52 @@ catch (e) {
 /******************************
  * REALTIME UPDATE
  ******************************/
-
 function handleRealtimeUpdate(data) {
+
+    // =========================
+    // تحديث حالة الختمة
+    // =========================
+    if (data.type === "khetmah_status") {
+
+        AppState.khetmahStatus = data.status;
+
+        updateKhetmahStatusUI(data.status);
+
+        if (
+            data.status === "archived" ||
+            data.status === "completed"
+        ) {
+
+            disableGrid();
+        }
+        else {
+
+            enableGrid();
+        }
+
+        return;
+    }
+
+    // =========================
+    // حذف الختمة realtime
+    // =========================
+    if (data.type === "khetmah_deleted") {
+
+        AppState.khetmahs =
+            AppState.khetmahs.filter(
+                k => k.id !== data.khetmah_id
+            );
+
+        renderKhetmahList();
+
+        window.location.href = "/";
+
+        return;
+    }
+
+    // =========================
+    // تحديث الأجزاء realtime
+    // =========================
 
     console.log("Realtime", data);
 
@@ -1247,12 +1285,14 @@ function handleRealtimeUpdate(data) {
 
     const username = data.username;
 
-    // تحديث AppState.parts
     const part = AppState.parts.find(
         p => parseInt(p.number) === num
     );
 
     if (!part) return;
+
+    const isMine =
+        username === AppState.user.username;
 
     part.status = status;
 
@@ -1261,7 +1301,9 @@ function handleRealtimeUpdate(data) {
             ? ""
             : username;
 
-    // تحديث الزر
+    part.selected_jezaa_by_I =
+        isMine && status !== "available";
+
     const box = document.querySelector(
         `[data-jezaa="${num}"]`
     );
@@ -1276,17 +1318,18 @@ function handleRealtimeUpdate(data) {
 
     box.classList.add(status);
 
-    // available
+    box.style.pointerEvents = "auto";
+    box.style.opacity = "1";
+    box.style.cursor = "pointer";
+    box.style.border = "none";
+
     if (status === "available") {
 
         box.innerHTML = `
             <div>${num}</div>
         `;
-
-        box.style.border = "none";
     }
 
-    // taken/read
     else {
 
         box.innerHTML = `
@@ -1295,8 +1338,47 @@ function handleRealtimeUpdate(data) {
                 ${username}
             </div>
         `;
+
+        if (isMine) {
+
+            if (status === "taken") {
+
+                box.style.border =
+                    "3px dashed rgb(5, 98, 174)";
+            }
+
+            if (status === "read") {
+
+                box.style.border =
+                    "3px dashed rgb(1, 49, 88)";
+            }
+        }
+
+        else {
+
+            box.style.pointerEvents = "none";
+
+            box.style.cursor = "not-allowed";
+
+            box.style.opacity = "0.6";
+
+            box.style.border =
+                "2px dotted black";
+        }
     }
+
+    if (status === "available") {
+
+        box.style.pointerEvents = "auto";
+
+        box.style.opacity = "1";
+
+        box.style.cursor = "pointer";
+    }
+
+    renderCounters();
 }
+
 
 
 /******************************
@@ -1475,6 +1557,14 @@ function checkCompletion() {
         AppState.parts.every(p => p.status === "read");
 
     if (!allRead) return;
+    socket.send(JSON.stringify({
+
+    type: "khetmah_status",
+
+    status: "completed",
+
+    khetmah_id: AppState.currentKhetmahId
+    }));
 
     completeKhetmah();
 }
@@ -2464,6 +2554,15 @@ async function archives() {
 
         updateKhetmahStatusUI("archived");
         disableGrid();
+
+            socket.send(JSON.stringify({
+
+                type: "khetmah_status",
+
+                status: "archived",
+
+                khetmah_id: AppState.currentKhetmahId
+            }));
     }
 
     catch (e) {
@@ -2637,6 +2736,15 @@ async function delete_khetmah() {
             alert(data.message);
             return;
         }
+
+        socket.send(JSON.stringify({
+
+            type: "khetmah_status",
+
+            status: "deleted",
+
+            khetmah_id: AppState.currentKhetmahId
+        }));
 
         if (data.lastkhetmahID) {
 
