@@ -1557,8 +1557,16 @@ function checkCompletion() {
         AppState.parts.every(p => p.status === "read");
 
     if (!allRead) return;
+    const complete = document.getElementById("completed");
+    complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها");
+    socket.send(JSON.stringify({
 
+    type: "khetmah_status",
 
+    status: "completed",
+
+    khetmah_id: AppState.currentKhetmahId
+    }));
 
     completeKhetmah();
 }
@@ -1591,8 +1599,7 @@ async function completeKhetmah() {
 
         if (!data.success) return;
 
-        const complete = document.getElementById("complete");
-        complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها")
+
         // =========================
         // realtime
         // =========================
