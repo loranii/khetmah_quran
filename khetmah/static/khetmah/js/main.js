@@ -111,6 +111,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderKhetmahList();
     renderCounters();
     renderParts();
+    
+    renderKhetmahMessage();
 
     updateButtonsUI();
 
@@ -1557,8 +1559,6 @@ function checkCompletion() {
         AppState.parts.every(p => p.status === "read");
 
     if (!allRead) return;
-    const complete = document.getElementById("completed");
-    complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها");
     socket.send(JSON.stringify({
 
     type: "khetmah_status",
@@ -1665,6 +1665,9 @@ function updateKhetmahStatusUI(status) {
 
     // إعادة رسم الأزرار
     updateButtonsUI();
+
+    // مهم جدا
+    renderKhetmahMessage();
 }
 
 
@@ -1762,6 +1765,135 @@ function updateButtonsUI() {
         `;
     }
 }
+
+/******************************
+ * KHETMAH MESSAGE UI
+ ******************************/
+function renderKhetmahMessage() {
+
+    const box =
+        document.getElementById("khetmah-message");
+
+    if (!box) return;
+
+    let html = "";
+
+    // =========================
+    // غير مسجل دخول
+    // =========================
+    if (!AppState.isAuthenticated) {
+
+        if (AppState.khetmahStatus === "completed") {
+
+            html = `
+                <h6 class="alert-danger wi-3">
+                    هذه الختمة مكتملة لا يمكن المشاركة فيها
+                </h6>
+            `;
+        }
+
+        else if (
+            AppState.khetmahStatus === "archived"
+        ) {
+
+            html = `
+                <h6 class="alert-danger wi-1">
+                    هذه الختمة مؤرشفة لا يمكن المشاركة فيها
+                </h6>
+            `;
+        }
+
+        else {
+
+            html = `
+                <h6 class="alert-danger wi-1">
+                    للمشاركة في هذه الختمة يجب عليك تسجيل الدخول
+                </h6>
+            `;
+        }
+
+        box.innerHTML = html;
+
+        return;
+    }
+
+    // =========================
+    // صاحب الختمة
+    // =========================
+    if (AppState.isCreator) {
+
+        if (AppState.khetmahStatus === "active") {
+
+            html = `
+                <h6 class="alert-success wi-2wi-2">
+                    تستطيع ان تتحكم بحالة كامل أجزاء ختمتك
+                </h6>
+            `;
+        }
+
+        else if (
+            AppState.khetmahStatus === "completed"
+        ) {
+
+            html = `
+                <h6 class="alert-danger wi-0">
+                    ختمتك هذه اكتملت تقبل الله
+                </h6>
+            `;
+        }
+
+        else if (
+            AppState.khetmahStatus === "archived"
+        ) {
+
+            html = `
+                <h6 class="alert-success wi-0">
+                    ختمتك مؤرشفة
+                </h6>
+            `;
+        }
+    }
+
+    // =========================
+    // مستخدم عادي
+    // =========================
+    else {
+
+        if (AppState.khetmahStatus === "active") {
+
+            html = `
+                <h6 class="alert-info wi-2">
+                    للإشتراك اختر الاجزاء التي تريد حجزها وقراءتها
+                </h6>
+            `;
+        }
+
+        else if (
+            AppState.khetmahStatus === "completed"
+        ) {
+
+            html = `
+                <h6 class="alert-danger wi-1">
+                    هذه الختمة مكتملة لا يمكن الاشتراك فيها
+                </h6>
+            `;
+        }
+
+        else if (
+            AppState.khetmahStatus === "archived"
+        ) {
+
+            html = `
+                <h6 class="alert-danger wi-1">
+                    هذه الختمة مؤرشفة لا يمكن الاشتراك فيها
+                </h6>
+            `;
+        }
+    }
+
+    box.innerHTML = html;
+}
+
 
 /******************************
  * GRID CONTROL
@@ -2572,9 +2704,6 @@ async function archives() {
             alert(data.message);
             return;
         }
-
-        const archived = document.getElementById("archived");
-        archived.innerHTML = ("هذه الختمة مؤرشفة لا يمكن الاشتراك فيها")
 
         // =========================
         // realtime

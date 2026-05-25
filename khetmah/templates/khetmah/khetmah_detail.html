@@ -116,7 +116,8 @@
                 <h3>لم يتم إرفاق نعوة</h3>
                 <img id="na3wa-preview" src="/media/khetmah/images/na3wa_pictures/not-available.png" class="img-fluid mb-3">
             {% endif %}
-                    {% if user.is_authenticated and user == khetmah.creator %}
+
+            {% if user.is_authenticated and user == khetmah.creator %}
              <hr>
              <form method="POST" enctype="multipart/form-data">
               {% csrf_token %}
@@ -140,36 +141,11 @@
 
 <div class="jezaa-container">
 <div class="column">
-        <div class="alert alert-info"><img src="{{ khetmah.creator.profile_picture_url }}" class="img_c"><b> {{ khetmah.creator }} : طالب الختمة</b></div>
-      {% if user.is_authenticated %}
-        {% if is_I_creator and khetmah.status == "active" %}
-        <h6 class="alert-success wi-2wi-2"> تستطيع ان تتحكم بحالة كامل أجزاء ختمتك</h6>
-        {% elif user != khetmah.creator  and khetmah.status == "active" %}
-           <h6 class="alert-info wi-2">للإشتراك اختر الاجزاء التي تريد حجزها وقراءتها</h6>
-        {% elif is_I_creator and khetmah.status == "completed" %}
-        <br>
-            <h6 class="alert-danger wi-0">ختمتك هذه اكتملت تقبل الله</h6>
-         
-        {% elif is_I_creator and khetmah.status == "archived" %}
-        <br>
-            <h6 class="alert-success wi-0">ختمتك مؤرشفة</h6>    
-        {% elif  user !=  khetmah.creator and khetmah.status == "completed" %}
-            <h6 id = "completed" class="alert-danger wi-1"></h6>
-        {% elif  user !=  khetmah.creator and khetmah.status == "archived" %}
-            <h6 id="archived" class="alert-danger wi-1"></h6>   
-        {% endif %}
-    {% else %}
-            {% if khetmah.status == "completed" and user.is_authenticated %}
-              <h6 class="alert-danger wi-3">هذه الختمة مكتملة لا يمكن المشاركة فيها</h6>
-            <br>
-             <h6 class="alert-danger wi-3"><a href="#" class="open-login">تسجيل الدخول</a>&nbsp; أو &nbsp;<a href="#" class="open-register"> إنشاء حساب </a>&nbsp; لإنشاء ختمة او المشاركة في ختمة نشطة يجب عليك  </h6>
-            {% elif khetmah.status == "archived" and not user.is_authenticated %}
-              <h6 class="alert-danger wi-1">هذه الختمة مؤرشفة لا يمكن المشاركة فيها</h6>
-             <h6 class="alert-danger wi-2"><a href="#" class="open-register">إنشاء حساب</a>&nbsp; أو &nbsp;<a href="#" class="open-login">تسجيل الدخول</a>&nbsp; لإنشاء ختمة او المشاركة في ختمة نشطة يجب عليك  </h6>
-            {% else %}
-             <h6 class="alert-danger wi-1"><a href="#" class="open-register">إنشاء حساب</a>&nbsp; أو &nbsp;<a href="#" class="open-login">تسجيل الدخول</a>&nbsp; للمشاركة في هذه الختمة يجب عليك </h6>
-            {% endif %}
-    {% endif %}
+    <div class="alert alert-info"><img src="{{ khetmah.creator.profile_picture_url }}" class="img_c"><b> {{ khetmah.creator }} : طالب الختمة</b>
+        
+    </div>
+<div id="khetmah-message"></div>
+
 <div class="status-indicators">
     <div class="available shadow-2">متاح</div>
     <div class="taken shadow-2">محجوز</div>
