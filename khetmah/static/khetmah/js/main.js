@@ -1787,7 +1787,7 @@ function renderKhetmahMessage() {
 
             html = `
                 <h6 class="alert-danger wi-3">
-                    هذه الختمة مكتملة لا يمكن المشاركة فيها
+                    هذه الختمة أصبحت مكتملة
                 </h6>
             `;
         }
@@ -1798,7 +1798,7 @@ function renderKhetmahMessage() {
 
             html = `
                 <h6 class="alert-danger wi-1">
-                    هذه الختمة مؤرشفة لا يمكن المشاركة فيها
+                    هذه الختمة مؤرشفة 
                 </h6>
             `;
         }
@@ -1874,7 +1874,7 @@ function renderKhetmahMessage() {
 
             html = `
                 <h6 class="alert-danger wi-1">
-                    هذه الختمة مكتملة لا يمكن الاشتراك فيها
+                    هذه الختمة أصبحت مكتملة 
                 </h6>
             `;
         }
@@ -1885,7 +1885,7 @@ function renderKhetmahMessage() {
 
             html = `
                 <h6 class="alert-danger wi-1">
-                    هذه الختمة مؤرشفة لا يمكن الاشتراك فيها
+                    هذه الختمة مؤرشفة 
                 </h6>
             `;
         }
