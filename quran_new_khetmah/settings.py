@@ -172,7 +172,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/login'
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://web-production-5cda0e.up.railway.app",
+    "https://khetmah.up.railway.app",
 ]
 
 SESSION_COOKIE_SECURE = True
