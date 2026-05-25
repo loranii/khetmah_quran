@@ -1558,16 +1558,7 @@ function checkCompletion() {
 
     if (!allRead) return;
 
-    const complete = document.getElementById("complete");
-    complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها")
-    socket.send(JSON.stringify({
 
-    type: "khetmah_status",
-
-    status: "completed",
-
-    khetmah_id: AppState.currentKhetmahId
-    }));
 
     completeKhetmah();
 }
@@ -1600,7 +1591,26 @@ async function completeKhetmah() {
 
         if (!data.success) return;
 
+        const complete = document.getElementById("complete");
+        complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها")
+        // =========================
+        // realtime
+        // =========================
+        if (socket && socket.readyState === WebSocket.OPEN) {
+
+            socket.send(JSON.stringify({
+
+                type: "khetmah_status",
+
+                status: "completed",
+
+                khetmah_id: AppState.currentKhetmahId
+            }));
+        }
+
+
         AppState.khetmahStatus = "completed";
+
 
         updateKhetmahStatusUI("completed");
 
@@ -2556,10 +2566,14 @@ async function archives() {
             return;
         }
 
-        updateKhetmahStatusUI("archived");
-        disableGrid();
         const archived = document.getElementById("archived");
         archived.innerHTML = ("هذه الختمة مؤرشفة لا يمكن الاشتراك فيها")
+
+        // =========================
+        // realtime
+        // =========================
+        if (socket && socket.readyState === WebSocket.OPEN) {
+
             socket.send(JSON.stringify({
 
                 type: "khetmah_status",
@@ -2568,6 +2582,12 @@ async function archives() {
 
                 khetmah_id: AppState.currentKhetmahId
             }));
+        }
+
+
+        updateKhetmahStatusUI("archived");
+        disableGrid();
+  
     }
 
     catch (e) {
@@ -2663,6 +2683,20 @@ async function active_khetmah() {
         }
 
         // =========================
+        // realtime
+        // =========================
+        if (socket && socket.readyState === WebSocket.OPEN) {
+
+            socket.send(JSON.stringify({
+
+                type: "khetmah_status",
+
+                status: "active",
+
+                khetmah_id: AppState.currentKhetmahId
+            }));
+        }
+                // =========================
         // تحديث الحالة الصحيحة
         // =========================
 
@@ -2742,14 +2776,18 @@ async function delete_khetmah() {
             return;
         }
 
-        socket.send(JSON.stringify({
+        // =========================
+        // realtime
+        // =========================
+        if (socket && socket.readyState === WebSocket.OPEN) {
 
-            type: "khetmah_status",
+            socket.send(JSON.stringify({
 
-            status: "deleted",
+                type: "khetmah_deleted",
 
-            khetmah_id: AppState.currentKhetmahId
-        }));
+                khetmah_id: AppState.currentKhetmahId
+            }));
+        }
 
         if (data.lastkhetmahID) {
 
