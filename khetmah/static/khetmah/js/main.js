@@ -1596,12 +1596,14 @@ async function completeKhetmah() {
         const data = await response.json();
 
         if (!data.success) return;
-
+        const complete = document.getElementById("complete");
+        complete.innerHTML = ("هذه الختمة مكتملة لا يمكن الاشتراك فيها")
         AppState.khetmahStatus = "completed";
 
         updateKhetmahStatusUI("completed");
 
         disableGrid();
+
 
         alert("اكتملت الختمة 🌸");
 
@@ -1710,6 +1712,8 @@ function updateButtonsUI() {
     else if (
         AppState.khetmahStatus === "archived"
     ) {
+        const archived = document.getElementById("archived");
+        archived.innerHTML = ("هذه الختمة مؤرشفة لا يمكن الاشتراك فيها")
 
         actions.innerHTML = `
 

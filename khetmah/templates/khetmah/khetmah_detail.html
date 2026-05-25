@@ -154,9 +154,9 @@
         <br>
             <h6 class="alert-success wi-0">ختمتك مؤرشفة</h6>    
         {% elif  user !=  khetmah.creator and khetmah.status == "completed" %}
-            <h6 class="alert-danger wi-1">هذه الختمة مكتملة لا يمكن الاشتراك فيها</h6>
+            <h6 id = "completed" class="alert-danger wi-1"></h6>
         {% elif  user !=  khetmah.creator and khetmah.status == "archived" %}
-            <h6 class="alert-danger wi-1">هذه الختمة مؤرشفة لا يمكن الاشتراك فيها</h6>   
+            <h6 id="archived" class="alert-danger wi-1"></h6>   
         {% endif %}
     {% else %}
             {% if khetmah.status == "completed" and user.is_authenticated %}
