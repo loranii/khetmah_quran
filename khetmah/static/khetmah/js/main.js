@@ -134,7 +134,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateButtonsUI();
 
     if (
-        AppState.khetmahStatus === "archived" ||
         AppState.khetmahStatus === "completed"||
         AppState.isAuthenticated === false) {
         disableGrid();
@@ -614,7 +613,7 @@ function syncCountersFromState() {
 
     // =========================
     // المقروء من الجميع
-    // active + archived + completed
+    // active + completed
     // =========================
 
     const activeRead = activeParts.filter(p => p.status === "read").length;
@@ -772,8 +771,6 @@ function renderKhetmahCard(kh) {
                         ${
                             kh.status === "active"
                             ? `<span class="badge bg-warning text-dark">${kh.status}</span>`
-                            : kh.status === "archived"
-                            ? `<span class="badge bg-gray text-dark">${kh.status}</span>`
                             : `<span class="badge bg-success text-dark">${kh.status}</span>`
                         }
 
@@ -843,8 +840,6 @@ function renderKhetmahList() {
     // عدادات الحالة (لإظهارها في العنوان)
     const activeCount = allKhetmahs.filter(k => k.status === "active").length;
 
-    const archivedCount = allKhetmahs.filter(k => k.status === "archived").length;
-
     const completedCount = allKhetmahs.filter(k => k.status === "completed").length;
 
     const allCount = allKhetmahs.length;
@@ -879,9 +874,6 @@ function renderKhetmahList() {
         statusSelect.querySelector('option[value="All"]').textContent =
             `كل الختمات (${allCount})`;
 
-        statusSelect.querySelector('option[value="archived"]').textContent =
-            `الختمات المؤرشفة (${archivedCount})`;
-
         statusSelect.querySelector('option[value="completed"]').textContent =
             `الختمات المنتهية (${completedCount})`;
 
@@ -904,9 +896,6 @@ function renderKhetmahList() {
         else if (filter === "completed") {
             message = "✅ لا توجد ختمات منتهية";
         } 
-        else if (filter === "archived") {
-            message = "🗂️ لا توجد ختمات مؤرشفة";
-        }
 
         emptyMessage.style.display = "block";
         emptyMessage.innerHTML = `
@@ -1261,7 +1250,6 @@ function handleRealtimeUpdate(data) {
         updateKhetmahStatusUI(data.status);
 
         if (
-            data.status === "archived" ||
             data.status === "completed"
         ) {
 
@@ -1715,21 +1703,6 @@ function updateButtonsUI() {
         AppState.khetmahStatus === "completed"
     ) {
         actions.innerHTML = `
-
-            <button
-                class="icon-btn"
-                onclick="archives()"
-                type="button">
-
-                <i class="fa fa-archive"
-                   style="font-size:20px;color:rgb(1,117,32)"
-                   title="أرشفة الختمة">
-                </i>
-
-            </button>
-
-            &nbsp;
-
             <button
                 class="icon-btn"
                 onclick="delete_khetmah()"
@@ -1744,43 +1717,6 @@ function updateButtonsUI() {
         `;
     }
 
-    // =========================
-    // ARCHIVED
-    // =========================
-
-    else if (
-        AppState.khetmahStatus === "archived"
-    ) {
-
-        actions.innerHTML = `
-
-            <button
-                class="icon-btn"
-                onclick="active_khetmah()"
-                type="button">
-
-                <i class="fa fa-undo"
-                   style="font-size:20px;color:rgb(0,162,255)"
-                   title="استعادة الختمة">
-                </i>
-
-            </button>
-
-            &nbsp;
-
-            <button
-                class="icon-btn"
-                onclick="delete_khetmah()"
-                type="button">
-
-                <i class="fa fa-close"
-                   style="font-size:24px;color:red"
-                   title="حذف الختمة نهائياً">
-                </i>
-
-            </button>
-        `;
-    }
 }
 
 /******************************
@@ -1808,18 +1744,6 @@ function renderKhetmahMessage() {
                 </h6>
             `;
         }
-
-        else if (
-            AppState.khetmahStatus === "archived"
-        ) {
-
-            html = `
-                <h6 class="alert-danger wi-1">
-                    هذه الختمة مؤرشفة 
-                </h6>
-            `;
-        }
-
         else {
 
             html = `
@@ -1858,17 +1782,6 @@ function renderKhetmahMessage() {
                 </h6>
             `;
         }
-
-        else if (
-            AppState.khetmahStatus === "archived"
-        ) {
-
-            html = `
-                <h6 class="alert-success wi-0">
-                    ختمتك مؤرشفة
-                </h6>
-            `;
-        }
     }
 
     // =========================
@@ -1892,17 +1805,6 @@ function renderKhetmahMessage() {
             html = `
                 <h6 class="alert-danger wi-1">
                     هذه الختمة أصبحت مكتملة 
-                </h6>
-            `;
-        }
-
-        else if (
-            AppState.khetmahStatus === "archived"
-        ) {
-
-            html = `
-                <h6 class="alert-danger wi-1">
-                    هذه الختمة مؤرشفة 
                 </h6>
             `;
         }
@@ -2691,199 +2593,7 @@ validateUserBeforeSelection() {
 
 
 
-/////////////////////////////////////
 
-/******************************
- * ARCHIVE
- ******************************/
-
-async function archives() {
-
-    try {
-
-        const response = await fetch("/archives/", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken":
-                        getCookie("csrftoken"),
-                },
-
-                body: JSON.stringify({
-                    khetmah_id:
-                    AppState.currentKhetmahId
-                })
-            });
-
-        const data = await response.json();
-
-        if (!data.success) {
-            alert(data.message);
-            return;
-        }
-
-        // =========================
-        // realtime
-        // =========================
-        if (socket && socket.readyState === WebSocket.OPEN) {
-
-            socket.send(JSON.stringify({
-
-                type: "khetmah_status",
-
-                status: "archived",
-
-                khetmah_id: AppState.currentKhetmahId
-            }));
-        }
-
-
-        updateKhetmahStatusUI("archived");
-        disableGrid();
-  
-    }
-
-    catch (e) {
-
-        console.error(e);
-    }
-}
-
-
-
-/******************************
- * ACTIVATE
- ******************************/
-
-async function active_khetmah() {
-
-    // تحديث بيانات المستخدم أولاً
-    await loadUserState();
-
-    const activePart =
-        AppState.user.activeParts.find(
-            p => p.status === "taken"
-        );
-
-    // =========================
-    // لديه ختمة نشطة أخرى
-    // =========================
-
-    if (
-        AppState.user.hasActiveKhetmah &&
-        AppState.user.activeKhetmahId !==
-        AppState.currentKhetmahId
-    ) {
-
-        alert(
-            "لديك ختمة نشطة أخرى"
-        );
-
-        window.location.href =
-            `/khetmah_detail/${AppState.user.activeKhetmahId}`;
-
-        return;
-    }
-
-    // =========================
-    // لديه أجزاء غير منتهية
-    // =========================
-
-    if (
-        AppState.user.hasUnfinishedJuz &&
-        activePart &&
-        activePart.khetmah_id !==
-        AppState.currentKhetmahId
-    ) {
-
-        alert(
-            "لديك أجزاء غير منتهية حالياً"
-        );
-
-        window.location.href =
-            `/khetmah_detail/${activePart.khetmah_id}`;
-
-        return;
-    }
-
-    try {
-
-        const response =
-            await fetch("/active_khetmah/", {
-
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken":
-                        getCookie("csrftoken"),
-                },
-
-                body: JSON.stringify({
-                    khetmah_id:
-                        AppState.currentKhetmahId
-                })
-            });
-
-        const data =
-            await response.json();
-
-        if (!data.success) {
-
-            alert(data.message);
-
-            return;
-        }
-
-        // =========================
-        // realtime
-        // =========================
-        if (socket && socket.readyState === WebSocket.OPEN) {
-
-            socket.send(JSON.stringify({
-
-                type: "khetmah_status",
-
-                status: "active",
-
-                khetmah_id: AppState.currentKhetmahId
-            }));
-        }
-                // =========================
-        // تحديث الحالة الصحيحة
-        // =========================
-
-        updateKhetmahStatusUI(
-            data.status
-        );
-
-        // =========================
-        // فقط إذا Active
-        // =========================
-
-        if (data.status === "active") {
-
-            enableGrid();
-        }
-
-        // =========================
-        // إذا Completed
-        // =========================
-
-        else if (
-            data.status === "completed"
-        ) {
-
-            disableGrid();
-        }
-
-    }
-
-    catch (e) {
-
-        console.error(e);
-    }
-}
 
 
 

@@ -42,7 +42,7 @@ def user_khetmah_parts_api(request):
     if request.user.is_authenticated:
         active_khetmah = request.user.owned_khetmah.filter(status='active').first()
         userActiveKhetmahId = active_khetmah.id if active_khetmah else None
-        unactive_khetmah = request.user.owned_khetmah.filter(status__in=['completed', 'archived']).first()
+        unactive_khetmah = request.user.owned_khetmah.filter(status__in=['completed']).first()
         userUnactiveKhetmahId = unactive_khetmah.id if unactive_khetmah else None
         # جميع أجزاء المستخدم
         user_parts_queryset = Juza.objects.filter(selected_by=request.user)
@@ -93,7 +93,7 @@ def user_khetmah_parts_api(request):
             Juza.objects.filter(
                 selected_by=request.user,
                 status="read",
-                khetmah__status__in=['completed', 'archived']
+                khetmah__status__in=['completed']
             )
             .annotate(
                 number=F('juz_number')
@@ -298,67 +298,6 @@ def na3wa_upload_path(instance, filename):
     return f"khetmah/images/na3wa_pictures/{new_filename}"
 
 
-@login_required
-def archives(request):
-    if request.method in ["PUT", "PATCH"]:
-        try:
-            print("Body:",request.body)  # فحص البيانات القادمة
-            data = json.loads(request.body)
-            khetmah_id = data.get("khetmah_id")
-            khetmah = Khetmah.objects.get(id=khetmah_id, creator=request.user)
-            khetmah.status = "archived"
-            khetmah.save()
-
-            return JsonResponse({
-                "success": True,
-                "message": "تم أرشفة الختمة",
-                "status": "archived",
-                "khetmah_id":khetmah_id,
-                'user_has_unfinished_juz': False,  # بعد الأرشفة، لا يوجد أجزاء غير مكتملة  
-            })
-        except Khetmah.DoesNotExist:
-            return JsonResponse({"error": "الختمة غير موجودة أو لا تملك صلاحية تعديلها"}, status=404)
-        except Exception as e:
-            print("Body:",request.body)  # فحص البيانات القادمة
-            print(f"⚠️ خطأ: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
-
-
-
-
-
-@login_required
-def active_khetmah(request):
-    if request.method in ["PUT", "PATCH"]:
-        try:
-            print("Body:",request.body)  # فحص البيانات القادمة
-            data = json.loads(request.body)
-            khetmah_id = data.get("khetmah_id")
-            khetmah = Khetmah.objects.get(id=khetmah_id, creator=request.user)
-            juzas = Juza.objects.filter(khetmah=khetmah)
-            total_juzas = juzas.count()
-            # إذا كان عدد الأجزاء 30 وكلها بحالة read
-            all_read = (total_juzas == 30 and all(juza.status == "read" for juza in juzas))
-            if all_read:
-                khetmah.status = "completed"
-                khetmah.save()
-            else:
-                khetmah.status = "active"
-                khetmah.save()
-
-            return JsonResponse({
-                "success": True,
-                "message": "تم تنشيط الختمة",
-                "status": khetmah.status,
-                "khetmah_id" : khetmah_id,
-            })
-        except Khetmah.DoesNotExist:
-            return JsonResponse({"error": "الختمة غير موجودة أو لا تملك صلاحية تعديلها"}, status=404)
-        except Exception as e:
-            print("Body:",request.body)  # فحص البيانات القادمة
-            print(f"⚠️ خطأ: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
-
 
 
 
@@ -383,7 +322,7 @@ def delete_khetmah(request):
 
                 return JsonResponse({
                     "success": True,
-                    "action": "khetmah_archived",
+                    "action": "khetmah_deleted",
                     "message": "تم حذف الختمة بنجاح",
                     "status": status,
                     "khetmah_updated": khetmah_updated,
@@ -419,7 +358,7 @@ def delete_khetmah(request):
 def get_archives(request):
 
     all_unactive_khetmahs = Khetmah.objects.filter(
-        status__in=['archived', 'completed']
+        status__in=['completed']
     ).filter(
         Q(creator=request.user) |
         Q(parts__selected_by=request.user)

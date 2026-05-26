@@ -23,9 +23,7 @@ urlpatterns = [
     path("update_part/", views.update_part, name="update_part"),
 
     # status
-    path("archives/", views.archives, name="archives"),
     path("get_archives/", views.get_archives, name="get_archives"),
-    path("active_khetmah/", views.active_khetmah, name="active_khetmah"),
     path("delete_khetmah/", views.delete_khetmah, name="delete_khetmah"),
 
 ]

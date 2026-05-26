@@ -59,7 +59,7 @@ def na3wa_upload_path(instance, filename):
 
 class Khetmah(models.Model):
     PRIVACY_CHOICES = [('family_friends', 'مع الأهل والأصدقاء'),('public', 'عامة للجميع'),] 
-    KHETMAH_STATUS = [('active', 'نشطة'),('completed', 'مكتملة'),('archived', 'مؤرشفة')]
+    KHETMAH_STATUS = [('active', 'نشطة'),('completed', 'مكتملة')]
     REASON_CHOICES = [('dead', 'هبة لمتوفي'),('need', 'لطلب حاجة'),('sick', 'لطلب شفاء'),('travel', 'السفر'),('Thank_God', 'شكر لله'),('days', 'أيام فضيلة'),('other', 'سبب آخر'),]
     status = models.CharField(max_length=20, choices=KHETMAH_STATUS, default='active')
     reason = models.CharField(max_length=20, choices=REASON_CHOICES, blank=True, null=True, default='Thank_God')
