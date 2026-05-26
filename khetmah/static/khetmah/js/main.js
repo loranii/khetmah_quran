@@ -125,7 +125,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadUserState();
 
-    renderKhetmahList();
+    const statusSelect =
+    document.getElementById("status");
+
+    if (statusSelect) {
+
+        // استرجاع آخر فلتر محفوظ
+        const savedFilter =
+            localStorage.getItem("khetmahFilter");
+
+        if (savedFilter) {
+            statusSelect.value = savedFilter;
+        }
+
+        // حفظ الفلتر عند تغييره
+        statusSelect.addEventListener(
+            "change",
+            () => {
+
+                localStorage.setItem(
+                    "khetmahFilter",
+                    statusSelect.value
+                );
+
+                renderKhetmahList();
+            }
+        );
+    }
     renderCounters();
     renderParts();
     
@@ -879,7 +905,6 @@ function renderKhetmahList() {
 
 
 
-
     // ==============================
     // EMPTY STATE (same logic)
     // ==============================
@@ -1101,6 +1126,15 @@ async function handleClick(box) {
     if (!AppState.isAuthenticated) {
         return;
     }
+
+        // منع أي تعديل إذا الختمة مكتملة
+    if (AppState.khetmahStatus === "completed") {
+
+        disableGrid();
+
+        return;
+    }
+
     const num = parseInt(box.dataset.jezaa);
 
     const activePart =
@@ -1316,7 +1350,16 @@ function handleRealtimeUpdate(data) {
     );
 
     if (!box) return;
+// إذا الختمة مكتملة امنع أي تفاعل
+if (AppState.khetmahStatus === "completed") {
 
+    box.style.pointerEvents = "none";
+
+    box.style.cursor = "not-allowed";
+
+    box.style.opacity = "0.7";
+    }
+    
     box.classList.remove(
         "available",
         "taken",
@@ -1560,22 +1603,41 @@ function updateLocal(box, num, status) {
 
 function checkCompletion() {
 
+    // إذا الختمة مكتملة مسبقاً لا تكمل
+    if (AppState.khetmahStatus === "completed") {
+        return;
+    }
+
     const allRead =
-        AppState.parts.every(p => p.status === "read");
+        AppState.parts.every(
+            p => p.status === "read"
+        );
 
     if (!allRead) return;
-    socket.send(JSON.stringify({
 
-    type: "khetmah_status",
+    // تحديث الحالة مباشرة قبل أي async
+    AppState.khetmahStatus = "completed";
 
-    status: "completed",
+    disableGrid();
 
-    khetmah_id: AppState.currentKhetmahId
-    }));
+    if (
+        socket &&
+        socket.readyState === WebSocket.OPEN
+    ) {
+
+        socket.send(JSON.stringify({
+
+            type: "khetmah_status",
+
+            status: "completed",
+
+            khetmah_id:
+                AppState.currentKhetmahId
+        }));
+    }
 
     completeKhetmah();
 }
-
 
 
 async function completeKhetmah() {
@@ -1686,7 +1748,7 @@ function updateButtonsUI() {
 
     if (!actions) return;
 
-    // إذا ليس صاحب الختمة
+    // إذا ليست صاحب الختمة
     if (!AppState.isCreator) {
 
         actions.innerHTML = "";
