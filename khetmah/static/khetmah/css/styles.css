@@ -100,7 +100,11 @@ a {
     -o-border-radius: 5px;
 }
 
-
+.disabled-grid{
+    pointer-events: none;
+    opacity: .7;
+    cursor: not-allowed;
+}
 
 .available, .taken, .read{
     width: 58px;

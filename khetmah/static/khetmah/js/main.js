@@ -45,6 +45,23 @@ function initWebSocket() {
         const data = JSON.parse(e.data);
 
         handleRealtimeUpdate(data);
+    // =========================
+    // اكتمال الختمة
+    // =========================
+    if (
+        data.type === "khetmah_status" &&
+        data.status === "completed"
+    ) {
+
+        AppState.khetmahStatus = "completed";
+
+        updateKhetmahStatusUI("completed");
+
+        disableGrid();
+
+        return;
+    }
+
     };
 }
 
@@ -1901,17 +1918,17 @@ function renderKhetmahMessage() {
 
 function disableGrid() {
 
-    const grid =
-        document.querySelector(".grid");
+    document
+        .querySelectorAll(".available, .taken, .read")
+        .forEach(btn => {
 
-    if (!grid) return;
+            btn.style.pointerEvents = "none";
 
-    grid.style.pointerEvents = "none";
+            btn.style.opacity = "0.7";
 
-    grid.style.opacity = "0.7";
+            btn.style.cursor = "not-allowed";
+        });
 }
-
-
 
 function enableGrid() {
 
@@ -1922,7 +1939,7 @@ function enableGrid() {
 
     grid.style.pointerEvents = "auto";
 
-    grid.style.opacity = "1";
+    grid.style.opacity = "0.7";
 }
 
 
