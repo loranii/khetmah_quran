@@ -1197,6 +1197,8 @@ h5{
 
 .custom-modal-content {
 
+    position: relative;
+
     width: 95%;
     max-width: 500px;
 
