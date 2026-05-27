@@ -1795,7 +1795,7 @@ function renderKhetmahMessage() {
         if (AppState.khetmahStatus === "completed") {
 
             html = `
-                <h6 class="alert-danger wi-3">
+                <h6 class="alert-danger wi-0">
                     هذه الختمة أصبحت مكتملة
                 </h6>
             `;
