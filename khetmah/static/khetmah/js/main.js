@@ -1772,28 +1772,6 @@ function updateButtonsUI() {
         return;
     }
 
-    // =========================
-    // ACTIVE + COMPLETED
-    // =========================
-
-    if (
-        AppState.khetmahStatus === "active" ||
-        AppState.khetmahStatus === "completed"
-    ) {
-        actions.innerHTML = `
-            <button
-                class="icon-btn"
-                onclick="delete_khetmah()"
-                type="button">
-
-                <i class="fa fa-close"
-                   style="font-size:24px;color:red"
-                   title="حذف الختمة نهائياً">
-                </i>
-
-            </button>
-        `;
-    }
 
 }
 
@@ -1835,33 +1813,66 @@ function renderKhetmahMessage() {
 
         return;
     }
+// =========================
+// صاحب الختمة
+// =========================
+if (AppState.isCreator) {
 
-    // =========================
-    // صاحب الختمة
-    // =========================
-    if (AppState.isCreator) {
+    if (AppState.khetmahStatus === "active") {
 
-        if (AppState.khetmahStatus === "active") {
+        html = `
+            <div class="khetmah-alert-box">
 
-            html = `
                 <h6 class="alert-success wi-2wi-2">
                     تستطيع ان تتحكم بحالة كامل أجزاء ختمتك
                 </h6>
-            `;
-        }
 
-        else if (
-            AppState.khetmahStatus === "completed"
-        ) {
+                <button
+                    class="icon-btn"
+                    onclick="delete_khetmah()"
+                    type="button">
 
-            html = `
-                <h6 class="alert-danger wi-0">
-                    ختمتك هذه اكتملت تقبل الله
-                </h6>
-            `;
-        }
+                    <i class="fa fa-close"
+                       style="font-size:24px;color:red"
+                       title="حذف الختمة نهائياً">
+                    </i>
+
+                </button>
+
+            </div>
+        `;
     }
 
+    else if (
+        AppState.khetmahStatus === "completed"
+    ) {
+
+        html = `
+            <div class="khetmah-alert-box">
+
+                <h6 class="alert-danger wi-0">
+
+                    <button
+                    class="icon-btn"
+                    onclick="delete_khetmah()"
+                    type="button">
+
+                    <i class="fa fa-close"
+                       style="font-size:24px;color:red"
+                       title="حذف الختمة نهائياً">
+                    </i>
+
+                </button>
+                &nbsp;&nbsp;
+                   ختمتك هذه اكتملت تقبل الله
+                </h6>
+
+
+
+            </div>
+        `;
+    }
+}
     // =========================
     // مستخدم عادي
     // =========================
