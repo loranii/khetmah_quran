@@ -1389,22 +1389,22 @@ if (AppState.khetmahStatus === "completed") {
             </div>
         `;
 
-const isCreator = AppState.isCreator === true;
+        const isCreator = AppState.isCreator === true;
 
-if (isMine) {
+        if (isMine) {
 
-    if (status === "taken") {
+            if (status === "taken") {
 
-        box.style.border =
-            "3px dashed rgb(5, 98, 174)";
-    }
+                box.style.border =
+                    "3px dashed rgb(5, 98, 174)";
+            }
 
-    if (status === "read") {
+            if (status === "read") {
 
-        box.style.border =
-            "3px dashed rgb(1, 49, 88)";
-    }
-}
+                box.style.border =
+                    "3px dashed rgb(1, 49, 88)";
+            }
+        }
 
         // منشئ الختمة يستطيع التحكم بكل الأجزاء
         else if (isCreator) {
@@ -1417,7 +1417,7 @@ if (isMine) {
 
             box.style.border =
                 "2px dashed #444";
-            }
+        }
 
         // المستخدم العادي يُمنع
         else {
@@ -1430,7 +1430,6 @@ if (isMine) {
 
             box.style.border =
                 "2px dotted black";
-            }
         }
     }
 
