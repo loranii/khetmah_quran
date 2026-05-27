@@ -1822,12 +1822,8 @@ if (AppState.isCreator) {
 
         html = `
             <div class="khetmah-alert-box">
-
                 <h6 class="alert-success wi-2wi-2">
-                    تستطيع ان تتحكم بحالة كامل أجزاء ختمتك
-                </h6>
-
-                <button
+                    <button
                     class="icon-btn"
                     onclick="delete_khetmah()"
                     type="button">
@@ -1838,6 +1834,10 @@ if (AppState.isCreator) {
                     </i>
 
                 </button>
+                &nbsp;&nbsp;
+                    تستطيع ان تتحكم بحالة كامل أجزاء ختمتك
+                </h6>
+
 
             </div>
         `;
@@ -1851,7 +1851,6 @@ if (AppState.isCreator) {
             <div class="khetmah-alert-box">
 
                 <h6 class="alert-danger wi-0">
-
                     <button
                     class="icon-btn"
                     onclick="delete_khetmah()"
