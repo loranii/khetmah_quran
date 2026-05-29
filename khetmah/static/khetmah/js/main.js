@@ -858,6 +858,9 @@ function renderKhetmahList() {
     const emptyMessage = document.getElementById("empty-message");
 
     if (!list || !statusSelect) return;
+    if (emptyMessage) {
+    emptyMessage.style.display = "none";
+}
 
     const allKhetmahs = AppState.khetmahs || [];
 
@@ -894,15 +897,40 @@ function renderKhetmahList() {
             return statusMatch && creatorMatch;
         });
 
-        statusSelect.querySelector('option[value="active"]').textContent =
-            `الختمات النشطة (${activeCount})`;
+        const activeOption =
+    statusSelect.querySelector(
+        'option[value="active"]'
+    );
 
-        statusSelect.querySelector('option[value="All"]').textContent =
-            `كل الختمات (${allCount})`;
+const allOption =
+    statusSelect.querySelector(
+        'option[value="All"]'
+    );
 
-        statusSelect.querySelector('option[value="completed"]').textContent =
-            `الختمات المنتهية (${completedCount})`;
+const completedOption =
+    statusSelect.querySelector(
+        'option[value="completed"]'
+    );
 
+console.log(statusSelect.innerHTML);
+
+if (allOption) {
+
+    allOption.textContent =
+        `كل الختمات (${allCount})`;
+}
+
+if (activeOption) {
+
+    activeOption.textContent =
+        `الختمات النشطة (${activeCount})`;
+}
+
+if (completedOption) {
+
+    completedOption.textContent =
+        `الختمات المنتهية (${completedCount})`;
+}
 
 
     // ==============================
@@ -922,7 +950,9 @@ function renderKhetmahList() {
             message = "✅ لا توجد ختمات منتهية";
         } 
 
+        if (emptyMessage) {
         emptyMessage.style.display = "block";
+}
         emptyMessage.innerHTML = `
             <div class="alert alert-light text-center mt-3 shadow-sm"
      style="

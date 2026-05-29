@@ -1,7 +1,7 @@
 {% extends "khetmah/layout.html" %}
 {% block content %}
 {% load static %}
-
+<div id="empty-message"></div>
 <div id="allPartsData" class="hidden">{{ all_parts_json|safe }}</div>
 <div id="allKhetmahsData" class="hidden">
   {{ all_khetmahs_json|safe }}
