@@ -207,8 +207,7 @@ def create_khetmah(request):
 
 def khetmah_detail(request, khetmah_id):
     try:
-        
-        khetmah = get_object_or_404(Khetmah,id=khetmah_id)
+        khetmah = Khetmah.objects.get(id=khetmah_id)
         khetmah_creator = khetmah.creator
     except Khetmah.DoesNotExist:
         raise Http404("Khetmah does not exist")
