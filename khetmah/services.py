@@ -65,14 +65,12 @@ def handle_creator_last_part(user, khetmah, juz_number, status):
     return None
 
 # -------------------------------
+
+
 def update_khetmah_status(khetmah):
     """
     Update khetmah status based on its juzas
     """
-
-    # لا نغير إذا مؤرشفة
-    if khetmah.status == "archived":
-        return False
 
     juzas = khetmah.parts.all()
 
