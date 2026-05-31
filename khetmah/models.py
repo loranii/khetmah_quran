@@ -100,7 +100,7 @@ class Juza(models.Model):
         unique_together = ('khetmah', 'juz_number')
 
     def __str__(self):
-        return f"Juza {self.juz_number} - Khetmah {self.khetmah_id}"
+        return f"Juza {self.juz_number} - {self.status} -Khetmah {self.khetmah_id}"
 
 def clean(self):
     if self.status == 'available' and self.selected_by:
