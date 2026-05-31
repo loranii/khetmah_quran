@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from datetime import datetime
 from django.conf import settings
+from django.utils.text import slugify
 import os
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save, post_delete
@@ -42,16 +42,21 @@ class User(AbstractUser):
         return active_khetmah.id if active_khetmah else None
 
 
-
+# مسار الصورة الافتراضية
+DEFAULT_NA3WA = 'khetmah/images/na3wa_pictures/not-available.png'
 
 def na3wa_upload_path(instance, filename):
-    full_name = f"{instance.creator.first_name}_{instance.creator.last_name}".replace(" ", "_")
+    if instance.creator:
+        full_name = f"{instance.creator.first_name}_{instance.creator.last_name}".replace(" ", "_")
+    else:
+        full_name = "unknown_user"
     
     deceased = instance.deceased_name or "no_name"
-    deceased = deceased.replace(" ", "_")
+    deceased = slugify(deceased, allow_unicode=True)
+    full_name = slugify(full_name, allow_unicode=True)
 
     base, ext = os.path.splitext(filename)
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
 
     return f"khetmah/images/na3wa_pictures/({full_name})-na3wa-{deceased}_{base}_{timestamp}{ext}"
 
@@ -65,7 +70,7 @@ class Khetmah(models.Model):
     reason = models.CharField(max_length=20, choices=REASON_CHOICES, blank=True, null=True, default='Thank_God')
     sharing_type = models.CharField(max_length=20, choices=PRIVACY_CHOICES, blank=True, null=True, default='family_friends') 
     creator = models.ForeignKey('User', on_delete=models.CASCADE, related_name="owned_khetmah")
-    na3wa_image = models.ImageField(upload_to=na3wa_upload_path,blank=True,null=True)
+    na3wa_image = models.ImageField(upload_to=na3wa_upload_path,blank=True,null=True,default=DEFAULT_NA3WA)
     created_at = models.DateTimeField(auto_now_add=True)
     # حقول إضافية بناءً على السبب
     deceased_name = models.CharField(max_length=32, blank=True, null=True)
@@ -102,14 +107,13 @@ class Juza(models.Model):
     def __str__(self):
         return f"Juza {self.juz_number} - {self.status} -Khetmah {self.khetmah_id}"
 
-def clean(self):
-    if self.status == 'available' and self.selected_by:
-        raise ValidationError("Available juz cannot have a user")
+    def clean(self):
+        if self.status == 'available' and self.selected_by:
+            raise ValidationError("Available juz cannot have a user")
 
 
 
-# مسار الصورة الافتراضية
-DEFAULT_NA3WA = 'khetmah/images/na3wa_pictures/not-available.png'
+
 
 
 @receiver(pre_save, sender=Khetmah)
