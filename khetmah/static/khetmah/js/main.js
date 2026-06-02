@@ -1,4 +1,7 @@
+// ==============================
 // main.js
+// ==============================
+
 
 //سوكيت
 /******************************
@@ -100,16 +103,8 @@ const AppState = {
     isCreator: false
 };
 
-    function attachSearchFilter() {
 
-        const searchInput = document.getElementById("search-khetmah");
 
-        if (!searchInput) return;
-
-        searchInput.addEventListener("input", () => {
-            renderKhetmahList();
-        });
-    }    
 
 
 /******************************
@@ -178,6 +173,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     initProfileModal();
 });
 
+
+
+// filter for search input
+
+    function attachSearchFilter() {
+
+        const searchInput = document.getElementById("search-khetmah");
+
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", () => {
+            renderKhetmahList();
+        });
+    }    
 
 /******************************
  * USER DROPDOWN
@@ -382,8 +391,8 @@ document.addEventListener("submit", async function (e) {
                 timer: 2000,
                 showConfirmButton: false
             });
-
-            } else {
+            } 
+            else {
 
             Swal.fire({
                 icon: "error",
@@ -405,6 +414,36 @@ document.addEventListener("submit", async function (e) {
 });
 
 
+/**********************************************
+ * if user insert wrong khetmah id in url
+ *********************************************/
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const errorElement = document.getElementById("backend-error-message");
+
+    if (errorElement) {
+
+        const errorMessage = errorElement.textContent.trim();
+
+        if (errorMessage) {
+
+            Swal.fire({
+                icon: "error",
+                title: "خطأ",
+                text: errorMessage,
+                timer: 4000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+
+            // تنظيف الرابط بعد عرض الرسالة
+            const url = new URL(window.location);
+            url.searchParams.delete("error");
+            window.history.replaceState({}, "", url.pathname);
+        }
+    }
+});
 
 /******************************
  * PROFILE FORM AJAX
@@ -505,7 +544,7 @@ function initProfileForm() {
 
 
 /******************************
- * USER READ MODAL
+ * USER READ parts MODAL
  ******************************/
 
 function initUserReadModal() {
@@ -911,7 +950,6 @@ const completedOption =
         'option[value="completed"]'
     );
 
-console.log(statusSelect.innerHTML);
 
 if (allOption) {
 
@@ -1048,6 +1086,8 @@ function attachSidebarFilter() {
  * PARTS INFO TABLE ROWS
  ******************************/
 const partsRows = {};
+
+
 
 /******************************
  * PARTS GRID
@@ -1201,8 +1241,7 @@ async function handleClick(box) {
         AppState.currentKhetmahId
     ) {
 
-        alert("يجب إنهاء الأجزاء التي قمت بحجزها في ختمة اخرى أولاً");
-        
+        alert("يجب إنهاء الأجزاء التي قمت بحجزها أولاً");
 
         window.location.href = `/khetmah_detail/${activePart.khetmah_id}`;
 
