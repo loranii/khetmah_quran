@@ -1202,7 +1202,8 @@ async function handleClick(box) {
         AppState.currentKhetmahId
     ) {
 
-        alert("يجب إنهاء الأجزاء التي قمت بحجزها أولاً");
+        alert("يجب إنهاء الأجزاء التي قمت بحجزها في ختمة اخرى أولاً");
+        
 
         window.location.href = `/khetmah_detail/${activePart.khetmah_id}`;
 
