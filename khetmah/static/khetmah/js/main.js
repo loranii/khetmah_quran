@@ -4,7 +4,6 @@
 /******************************
  * WEBSOCKET
  ******************************/
-console.log("main.js loaded");
 
 let socket = null;
 
@@ -179,22 +178,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-// عرض رسالة الخطأ من الباكند إذا وجدت
+
+
+/******************************
+ * Display the error message Swal.fire
+ ******************************/
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOMContentLoaded fired");
     const errorElement = document.getElementById("backend-error-message");
-    console.log("Element:", errorElement);
     if (!errorElement) return;
 
     const errorMessage = errorElement.dataset.message?.trim();
-    console.log("Message:", errorMessage);
     if (errorMessage) {
-        console.log("Error Message:", errorMessage);
         Swal.fire({
             icon: "error",
             title: "خطأ",
             text: errorMessage,
-            timer: 5000,
+            timer: 3000,
             timerProgressBar: true,
             showConfirmButton: false
         });
@@ -637,11 +636,9 @@ async function loadUserState() {
     AppState.user.hasUnfinishedJuz = data.user_has_unfinished_juz;
     AppState.user.activeParts = data.parts || [];
     AppState.user.unactive_parts = data.unactive_parts || [];
-    console.log("USER PARTS", AppState.user.activeParts);
 
     syncCountersFromState();
 
-    console.log("UNACTIVE PARTS", AppState.user.unactive_parts);
 }
 
 
@@ -671,7 +668,6 @@ function syncCountersFromState() {
     const activeRead = activeParts.filter(p => p.status === "read").length;
 
     const unactiveRead = unactiveParts.length;
-    console.log("unactiveRead",unactiveRead);
 
     AppState.ui.readCount = activeRead + unactiveRead;
 
@@ -1274,8 +1270,6 @@ try {
 
     const data = await response.json();
 
-    console.log(data);
-
     if (!response.ok) {
         console.error(data);
         alert(data.error || "حدث خطأ");
@@ -1371,8 +1365,6 @@ function handleRealtimeUpdate(data) {
     // =========================
     // تحديث الأجزاء realtime
     // =========================
-
-    console.log("Realtime", data);
 
     const num = parseInt(data.part_number);
 
