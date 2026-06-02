@@ -612,7 +612,6 @@ async function loadUserState() {
     AppState.user.activeParts = data.parts || [];
     AppState.user.unactive_parts = data.unactive_parts || [];
     console.log("USER PARTS", AppState.user.activeParts);
-``
     syncCountersFromState();
 
     console.log("UNACTIVE PARTS", AppState.user.unactive_parts);
