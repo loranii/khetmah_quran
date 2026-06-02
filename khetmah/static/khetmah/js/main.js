@@ -1,12 +1,10 @@
-// ==============================
 // main.js
-// ==============================
-
 
 //سوكيت
 /******************************
  * WEBSOCKET
  ******************************/
+console.log("main.js loaded");
 
 let socket = null;
 
@@ -103,8 +101,16 @@ const AppState = {
     isCreator: false
 };
 
+    function attachSearchFilter() {
 
+        const searchInput = document.getElementById("search-khetmah");
 
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", () => {
+            renderKhetmahList();
+        });
+    }    
 
 
 /******************************
@@ -163,7 +169,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     AppState.initialized = true;
 
-    console.log("BOOT DONE", AppState);
 
     initKhetmahSidebar();
     attachSidebarFilter();
@@ -174,19 +179,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
+// عرض رسالة الخطأ من الباكند إذا وجدت
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOMContentLoaded fired");
+    const errorElement = document.getElementById("backend-error-message");
+    console.log("Element:", errorElement);
+    if (!errorElement) return;
 
-// filter for search input
-
-    function attachSearchFilter() {
-
-        const searchInput = document.getElementById("search-khetmah");
-
-        if (!searchInput) return;
-
-        searchInput.addEventListener("input", () => {
-            renderKhetmahList();
+    const errorMessage = errorElement.dataset.message?.trim();
+    console.log("Message:", errorMessage);
+    if (errorMessage) {
+        console.log("Error Message:", errorMessage);
+        Swal.fire({
+            icon: "error",
+            title: "خطأ",
+            text: errorMessage,
+            timer: 5000,
+            timerProgressBar: true,
+            showConfirmButton: false
         });
-    }    
+
+    }
+
+});
+
+
 
 /******************************
  * USER DROPDOWN
@@ -391,8 +408,8 @@ document.addEventListener("submit", async function (e) {
                 timer: 2000,
                 showConfirmButton: false
             });
-            } 
-            else {
+
+            } else {
 
             Swal.fire({
                 icon: "error",
@@ -414,36 +431,6 @@ document.addEventListener("submit", async function (e) {
 });
 
 
-/**********************************************
- * if user insert wrong khetmah id in url
- *********************************************/
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const errorElement = document.getElementById("backend-error-message");
-
-    if (errorElement) {
-
-        const errorMessage = errorElement.textContent.trim();
-
-        if (errorMessage) {
-
-            Swal.fire({
-                icon: "error",
-                title: "خطأ",
-                text: errorMessage,
-                timer: 4000,
-                timerProgressBar: true,
-                showConfirmButton: false
-            });
-
-            // تنظيف الرابط بعد عرض الرسالة
-            const url = new URL(window.location);
-            url.searchParams.delete("error");
-            window.history.replaceState({}, "", url.pathname);
-        }
-    }
-});
 
 /******************************
  * PROFILE FORM AJAX
@@ -544,7 +531,7 @@ function initProfileForm() {
 
 
 /******************************
- * USER READ parts MODAL
+ * USER READ MODAL
  ******************************/
 
 function initUserReadModal() {
@@ -651,6 +638,7 @@ async function loadUserState() {
     AppState.user.activeParts = data.parts || [];
     AppState.user.unactive_parts = data.unactive_parts || [];
     console.log("USER PARTS", AppState.user.activeParts);
+
     syncCountersFromState();
 
     console.log("UNACTIVE PARTS", AppState.user.unactive_parts);
@@ -749,8 +737,6 @@ function renderCounters() {
         takenLink.style.textDecoration = "none";
         takenLink.style.cursor = "default";
     }
-
-
 
 
 
@@ -1087,8 +1073,6 @@ function attachSidebarFilter() {
  ******************************/
 const partsRows = {};
 
-
-
 /******************************
  * PARTS GRID
  ******************************/
@@ -1241,7 +1225,8 @@ async function handleClick(box) {
         AppState.currentKhetmahId
     ) {
 
-        alert("يجب إنهاء الأجزاء التي قمت بحجزها أولاً");
+        alert("يجب إنهاء الأجزاء التي قمت بحجزها في ختمة اخرى أولاً");
+        
 
         window.location.href = `/khetmah_detail/${activePart.khetmah_id}`;
 
@@ -2828,13 +2813,6 @@ async function delete_khetmah() {
     }
 }
 /////////////////////////////////////
-
-
-
-
-
-
-
 
 
 

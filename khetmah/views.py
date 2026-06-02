@@ -210,7 +210,12 @@ def khetmah_detail(request, khetmah_id):
         khetmah = Khetmah.objects.get(id=khetmah_id)
         khetmah_creator = khetmah.creator
     except Khetmah.DoesNotExist:
-        raise Http404("Khetmah does not exist")
+     request.session['swal_error'] = ("الختمة المطلوبة غير موجودة وتم تحويلك إلى أحدث ختمة")
+     request.session['swal_error_active'] = True
+     last_khetmah = Khetmah.objects.order_by('-created_at').first()
+     if last_khetmah:
+            return redirect('khetmah_detail', khetmah_id=last_khetmah.id)
+     return redirect('index')
     all_khetmahs = []
     for k in Khetmah.objects.all().order_by('-created_at'):
         all_khetmahs.append({
@@ -270,7 +275,10 @@ def khetmah_detail(request, khetmah_id):
                 "selected_by_id": None,
                 "current_username": current_username,
             })
-
+    swal_error = ""
+    if request.session.get('swal_error_active'):
+        swal_error = request.session.pop('swal_error', '')
+        request.session.pop('swal_error_active', None)   
     return render(request, "khetmah/khetmah_detail.html", {
         "khetmah": khetmah,
         "khetmah_creator": khetmah_creator,
@@ -283,6 +291,7 @@ def khetmah_detail(request, khetmah_id):
         "all_parts_json": json.dumps(parts_data, ensure_ascii=False),
         "parts": parts_data,
         "current_khetmah": khetmah,
+        "swal_error": swal_error,
     })
 
 
