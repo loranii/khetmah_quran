@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 
-  <h2>الختمات المنتهية الخاصة بك أو التي شاركت بها</h2>
+  <h2>أرشف الختمات المنتهية التي انشأتها أو شاركت بها</h2>
   <ul  class="nav center">
     {% for kh in all_unactive_khetmahs %}
       <li>
@@ -20,7 +20,7 @@
     </ul>
     <br>
       <div class="buttons_container"></div>
-      <p>لا توجد ختمات مؤرشفة </p>
+      <p>لا توجد ختمات منتهية لديك</p>
   
       {% if user.is_authenticated %}
       <div class="error" id="shadow-1"><a href="{% url 'create_khetmah' %}">Create</a> new Khetmah &#128522;</div>
