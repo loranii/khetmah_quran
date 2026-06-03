@@ -1863,30 +1863,36 @@ function renderKhetmahMessage() {
 // صاحب الختمة
 // =========================
 if (AppState.isCreator) {
-
+    const deleteBtn = document.getElementById("delete-khetmah-btn");
+deleteBtn.innerHTML = deleteBtn.innerHTML = `
+    <span
+        onclick="delete_khetmah()"
+        style="
+            display:flex;
+            align-items:center;
+            gap:6px;
+            cursor:pointer;
+        "
+        title="حذف الختمة نهائياً">
+        <span style="font-size:14px; color:blue;">حذف الختمة</span>
+        <button class="icon-btn" type="button">
+            <i class="fa fa-close"
+               style="font-size:20px;color:red;">
+            </i>
+        </button>
+    </span>
+`;
     if (AppState.khetmahStatus === "active") {
-
         html = `
             <div class="khetmah-alert-box">
                 <h6 class="alert-success wi-2wi-2">
-                    <button
-                    class="icon-btn"
-                    onclick="delete_khetmah()"
-                    type="button">
-
-                    <i class="fa fa-close"
-                       style="font-size:24px;color:red"
-                       title="حذف الختمة نهائياً">
-                    </i>
-
-                </button>
-                &nbsp;&nbsp;
                     تستطيع ان تتحكم بكامل أجزاء ختمتك
                 </h6>
 
 
             </div>
         `;
+
     }
 
     else if (
@@ -1895,25 +1901,9 @@ if (AppState.isCreator) {
 
         html = `
             <div class="khetmah-alert-box">
-
                 <h6 class="alert-danger wi-0">
-                    <button
-                    class="icon-btn"
-                    onclick="delete_khetmah()"
-                    type="button">
-
-                    <i class="fa fa-close"
-                       style="font-size:24px;color:red"
-                       title="حذف الختمة نهائياً">
-                    </i>
-
-                </button>
-                &nbsp;&nbsp;
                    ختمتك هذه اكتملت تقبل الله
                 </h6>
-
-
-
             </div>
         `;
     }
