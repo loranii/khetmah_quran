@@ -23,6 +23,8 @@ import os
 from .services import (update_juza_status, handle_creator_last_part, update_khetmah_status)
 from django.db.models import F, Count, Q
 from django.contrib.auth import update_session_auth_hash
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 
@@ -191,6 +193,28 @@ def create_khetmah(request):
                         status=part['status'],
                         selected_by=request.user
                     )
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                    "khetmah_list",
+                    {
+                        "type": "send_update",
+                        "message": {
+                            "type": "khetmah_created",
+                            "khetmah": {
+                                "id": khetmah.id,
+                                "status": khetmah.status,
+                                "reason": khetmah.get_reason_display(),
+                                "created_at": localtime(
+                                    khetmah.created_at
+                                ).strftime("%Y-%m-%d %H:%M"),
+                                "creator__username": khetmah.creator.username,
+                                "creator_id": khetmah.creator.id,
+                                "creator__profile_picture":
+                                    khetmah.creator.profile_picture_url,
+                            }
+                        }
+                    }
+                )            
 
             return JsonResponse({'success': True, 'khetmah_id': khetmah.id})
 
@@ -297,19 +321,6 @@ def khetmah_detail(request, khetmah_id):
 
 
 
-def na3wa_upload_path(instance, filename):
-    user = f"{instance.creator.first_name}_{instance.creator.last_name}"  # صاحب الختمة
-    base, ext = os.path.splitext(filename)
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-
-    new_filename = f"{user}_{base}_{timestamp}{ext}"
-    
-    return f"khetmah/images/na3wa_pictures/{new_filename}"
-
-
-
-
-
 
 @login_required
 def delete_khetmah(request):
@@ -322,8 +333,21 @@ def delete_khetmah(request):
             status = khetmah.status
 
             if user == khetmah.creator:
+                deleted_id = khetmah.id
                 khetmah.delete()
                 khetmah_updated = True
+                channel_layer = get_channel_layer()
+
+                async_to_sync(channel_layer.group_send)(
+                    "khetmah_list",
+                    {
+                        "type": "send_update",
+                        "message": {
+                            "type": "khetmah_deleted",
+                            "khetmah_id": deleted_id
+                        }
+                    }
+                )
 
                 # نجيب آخر ختمة موجودة
                 lastkhetmah = Khetmah.objects.order_by('-created_at').first()
@@ -358,36 +382,7 @@ def delete_khetmah(request):
 
 
 
-# ------------------------------
 
-
-
-
-@login_required
-def get_archives(request):
-
-    all_unactive_khetmahs = Khetmah.objects.filter(
-        status__in=['completed']
-    ).filter(
-        Q(creator=request.user) |
-        Q(parts__selected_by=request.user)
-    ).distinct().order_by('-created_at')
-
-    user_parts_data = list(
-        Juza.objects.filter(
-            selected_by=request.user
-        ).values('juz_number', 'status')
-    )
-
-    user_All_parts_json = json.dumps(
-        user_parts_data,
-        ensure_ascii=False
-    )
-
-    return render(request, 'khetmah/archives.html', {
-        'all_unactive_khetmahs': all_unactive_khetmahs,
-        'user_All_parts_json': user_All_parts_json,
-    })
 
 # /------------------------------
 
@@ -439,10 +434,52 @@ def update_part(request):
 
 
 
+# ------------------------------
+@login_required
+def get_archives(request):
+
+    all_unactive_khetmahs = Khetmah.objects.filter(
+        status__in=['completed']
+    ).filter(
+        Q(creator=request.user) |
+        Q(parts__selected_by=request.user)
+    ).distinct().order_by('-created_at')
+
+    user_parts_data = list(
+        Juza.objects.filter(
+            selected_by=request.user
+        ).values('juz_number', 'status')
+    )
+
+    user_All_parts_json = json.dumps(
+        user_parts_data,
+        ensure_ascii=False
+    )
+
+    return render(request, 'khetmah/archives.html', {
+        'all_unactive_khetmahs': all_unactive_khetmahs,
+        'user_All_parts_json': user_All_parts_json,
+    })
+
+
+
+# ------------------------------
+
+def na3wa_upload_path(instance, filename):
+    user = f"{instance.creator.first_name}_{instance.creator.last_name}"  # صاحب الختمة
+    base, ext = os.path.splitext(filename)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    new_filename = f"{user}_{base}_{timestamp}{ext}"
+    
+    return f"khetmah/images/na3wa_pictures/{new_filename}"
+
+
+
+
 
 
 @login_required
-
 def profile(request):
     user = request.user
 

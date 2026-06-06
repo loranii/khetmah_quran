@@ -1,3 +1,6 @@
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 # قسم ادارة الاجزاء والختمات
 
@@ -68,20 +71,67 @@ def handle_creator_last_part(user, khetmah, juz_number, status):
 
 
 def update_khetmah_status(khetmah):
-    """
-    Update khetmah status based on its juzas
-    """
 
     juzas = khetmah.parts.all()
 
-    if juzas.count() == 30 and all(j.status == "read" for j in juzas):
+    if juzas.count() == 30 and all(
+        j.status == "read"
+        for j in juzas
+    ):
         new_status = "completed"
     else:
         new_status = "active"
 
-    if khetmah.status != new_status:
-        khetmah.status = new_status
-        khetmah.save()
-        return True
+    # لا يوجد تغيير
+    if khetmah.status == new_status:
+        return False
 
-    return False
+    print(
+        f"STATUS CHANGED: "
+        f"{khetmah.id} "
+        f"{khetmah.status} -> "
+        f"{new_status}"
+    )
+
+    khetmah.status = new_status
+    khetmah.save()
+
+    channel_layer = get_channel_layer()
+
+    # ==================================
+    # 1) تحديث صفحة الختمة الحالية
+    # ==================================
+    async_to_sync(channel_layer.group_send)(
+        f"khetmah_{khetmah.id}",
+        {
+            "type": "send_update",
+            "message": {
+                "type": "khetmah_status",
+                "status": new_status
+            }
+        }
+    )
+
+    print(
+        f"KHETMAH ROOM EVENT SENT: "
+        f"khetmah_{khetmah.id}"
+    )
+
+    # ==================================
+    # 2) تحديث القائمة الجانبية
+    # ==================================
+    async_to_sync(channel_layer.group_send)(
+        "khetmah_list",
+        {
+            "type": "send_update",
+            "message": {
+                "type": "khetmah_status",
+                "khetmah_id": khetmah.id,
+                "status": new_status
+            }
+        }
+    )
+
+    print("SIDEBAR EVENT SENT")
+
+    return True

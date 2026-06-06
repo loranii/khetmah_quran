@@ -32,4 +32,39 @@ class KhetmahConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_update(self, event):
+
+        print("KHETMAH ROOM MESSAGE:",event)
+        
         await self.send(text_data=json.dumps(event['message']))
+
+
+
+class KhetmahListConsumer(AsyncWebsocketConsumer):
+
+    async def connect(self):
+        print("SIDEBAR CONNECTED")
+        self.room_group_name = "khetmah_list"
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def send_update(self, event):
+
+        print("SIDEBAR MESSAGE SENT:",event)
+        
+        await self.send(
+            text_data=json.dumps(
+                event["message"]
+            )
+        )        

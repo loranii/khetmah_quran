@@ -6,6 +6,7 @@
  ******************************/
 
 let socket = null;
+let sidebarSocket = null;
 
 function initWebSocket() {
 
@@ -45,6 +46,8 @@ function initWebSocket() {
         const data = JSON.parse(e.data);
 
         handleRealtimeUpdate(data);
+
+        console.log("REALTIME MESSAGE DATA----:",data);
     // =========================
     // اكتمال الختمة
     // =========================
@@ -63,6 +66,82 @@ function initWebSocket() {
     }
 
     };
+}
+
+
+function initSidebarSocket() {
+
+    console.log("INIT SIDEBAR SOCKET");
+
+    const protocol =
+        window.location.protocol === "https:"
+            ? "wss"
+            : "ws";
+
+    sidebarSocket = new WebSocket(
+        `${protocol}://${window.location.host}/ws/khetmah-list/`
+    );
+
+    sidebarSocket.onmessage = function (event) {
+
+            console.log("SIDEBAR SOCKET CONNECTED");
+
+        const data = JSON.parse(event.data);
+
+        handleSidebarRealtime(data);
+
+    };
+
+    sidebarSocket.onclose = function () {
+
+        setTimeout(initSidebarSocket, 3000);
+
+    };
+
+}
+
+
+function handleSidebarRealtime(data) {
+
+    console.log("SIDEBAR MESSAGE:", data);
+
+    if (data.type === "khetmah_created") {
+
+        AppState.khetmahs.unshift(data.khetmah);
+
+        renderKhetmahList();
+
+        return;
+    }
+
+    if (data.type === "khetmah_deleted") {
+
+        AppState.khetmahs =
+            AppState.khetmahs.filter(
+                k => k.id !== data.khetmah_id
+            );
+
+        renderKhetmahList();
+
+        return;
+    }
+
+    if (data.type === "khetmah_status") {
+
+        const kh =
+            AppState.khetmahs.find(
+                k => k.id === data.khetmah_id
+            );
+
+        if (kh) {
+
+            kh.status = data.status;
+
+            renderKhetmahList();
+        }
+
+        return;
+    }
 }
 
 
@@ -122,6 +201,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     parseData();
     //سوكيت
     initWebSocket();
+    //سوكيت الخاص بقائمة الختمات
+    initSidebarSocket();
 
     await loadUserState();
 
@@ -1175,12 +1256,15 @@ async function handleClick(box) {
     if (!AppState.isAuthenticated) {
         return;
     }
-
+    const statusEl = document.getElementById("khetmah_status");
         // منع أي تعديل إذا الختمة مكتملة
-    if (AppState.khetmahStatus === "completed") {
-
+    if (statusEl && statusEl.dataset.khetmahstatus === "completed"){
         disableGrid();
+        return;
+    }
 
+    if (AppState.khetmahStatus === "completed") {
+        disableGrid();
         return;
     }
 
@@ -1327,23 +1411,41 @@ function handleRealtimeUpdate(data) {
     // =========================
     if (data.type === "khetmah_status") {
 
-        AppState.khetmahStatus = data.status;
+    const oldStatus = AppState.khetmahStatus;
 
-        updateKhetmahStatusUI(data.status);
+    AppState.khetmahStatus = data.status;
+
+    updateKhetmahStatusUI(data.status);
+
+    if (data.status === "completed") {
+
+        disableGrid();
+
+        renderKhetmahMessage();
+
+        updateButtonsUI();
 
         if (
-            data.status === "completed"
+            oldStatus !== "completed"
         ) {
 
-            disableGrid();
+            Swal.fire({
+                icon: "success",
+                title: "اكتملت الختمة 🌸",
+                text: "تقبل الله من الجميع",
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
         }
-        else {
-
-            enableGrid();
-        }
-
-        return;
     }
+    else {
+
+        enableGrid();
+    }
+
+    return;
+}
 
     // =========================
     // حذف الختمة realtime
@@ -1399,18 +1501,20 @@ function handleRealtimeUpdate(data) {
 // إذا الختمة مكتملة امنع أي تفاعل
 if (AppState.khetmahStatus === "completed") {
 
-    box.style.pointerEvents = "none";
-
-    box.style.cursor = "not-allowed";
-
-    box.style.opacity = "0.7";
-    }
-    
     box.classList.remove(
         "available",
         "taken",
         "read"
     );
+
+    box.classList.add(status);
+
+    box.style.pointerEvents = "none";
+    box.style.cursor = "not-allowed";
+    box.style.opacity = "0.7";
+
+    return;
+}
 
     box.classList.add(status);
 
@@ -1629,9 +1733,6 @@ function updateLocal(box, num, status) {
     updateJezaaInfo(num, status);
 
 
-    // فحص اكتمال الختمة
-    checkCompletion();
-
     // ==================================
     // تحديث العدادات UI
     // ==================================
@@ -1655,111 +1756,6 @@ function updateLocal(box, num, status) {
     ) {
 
         ajzaa_quran(num, status);
-    }
-}
-
-
-/******************************
- * KHETMAH STATUS SYSTEM
- ******************************/
-
-function checkCompletion() {
-
-    // إذا الختمة مكتملة مسبقاً لا تكمل
-    if (AppState.khetmahStatus === "completed") {
-        return;
-    }
-
-    const allRead =
-        AppState.parts.every(
-            p => p.status === "read"
-        );
-
-    if (!allRead) return;
-
-    // تحديث الحالة مباشرة قبل أي async
-    AppState.khetmahStatus = "completed";
-
-    disableGrid();
-
-    if (
-        socket &&
-        socket.readyState === WebSocket.OPEN
-    ) {
-
-        socket.send(JSON.stringify({
-
-            type: "khetmah_status",
-
-            status: "completed",
-
-            khetmah_id:
-                AppState.currentKhetmahId
-        }));
-    }
-
-    completeKhetmah();
-}
-
-
-async function completeKhetmah() {
-
-    if (AppState.khetmahStatus === "completed") {
-        return;
-    }
-
-    try {
-
-        const response = await fetch("/active_khetmah/", {
-
-            method: "PUT",
-
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-
-            body: JSON.stringify({
-                khetmah_id: AppState.currentKhetmahId
-            })
-        });
-
-        const data = await response.json();
-
-        if (!data.success) return;
-
-
-        // =========================
-        // realtime
-        // =========================
-        if (socket && socket.readyState === WebSocket.OPEN) {
-
-            socket.send(JSON.stringify({
-
-                type: "khetmah_status",
-
-                status: "completed",
-
-                khetmah_id: AppState.currentKhetmahId
-            }));
-        }
-
-
-        AppState.khetmahStatus = "completed";
-
-
-        updateKhetmahStatusUI("completed");
-
-        disableGrid();
-
-
-        alert("اكتملت الختمة 🌸");
-
-    }
-
-    catch (e) {
-
-        console.error(e);
     }
 }
 
@@ -1864,23 +1860,11 @@ function renderKhetmahMessage() {
 // =========================
 if (AppState.isCreator) {
     const deleteBtn = document.getElementById("delete-khetmah-btn");
-deleteBtn.innerHTML = deleteBtn.innerHTML = `
-    <span
-        onclick="delete_khetmah()"
-        style="
-            display:flex;
-            align-items:center;
-            gap:6px;
-            cursor:pointer;
-        "
-        title="حذف الختمة نهائياً">
-        <span style="font-size:14px; color:blue;">حذف الختمة</span>
-        <button class="icon-btn" type="button">
-            <i class="fa fa-close"
-               style="font-size:20px;color:red;">
-            </i>
+deleteBtn.innerHTML = deleteBtn.innerHTML = `<span>حذف الختمة نهائياً</span>
+        <button class="delete-full-btn" onclick="delete_khetmah()" type="button">
+            <i class="fa fa-close"></i>
+            
         </button>
-    </span>
 `;
     if (AppState.khetmahStatus === "active") {
         html = `
