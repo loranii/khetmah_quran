@@ -1409,6 +1409,7 @@ function handleRealtimeUpdate(data) {
     // =========================
     // تحديث حالة الختمة
     // =========================
+
     if (data.type === "khetmah_status") {
 
     const oldStatus = AppState.khetmahStatus;
@@ -1425,15 +1426,17 @@ function handleRealtimeUpdate(data) {
 
         updateButtonsUI();
 
-        if (
-            oldStatus !== "completed"
-        ) {
+        if (oldStatus !== "completed") {
 
             Swal.fire({
                 icon: "success",
                 title: "اكتملت الختمة 🌸",
-                text: "تقبل الله من الجميع",
-                timer: 3000,
+                html: `
+                    <div style="font-size:15px">
+                        تقبل الله منكم صالح الأعمال 🤲
+                    </div>
+                `,
+                timer: 5000,
                 timerProgressBar: true,
                 showConfirmButton: false
             });
@@ -1474,16 +1477,25 @@ function handleRealtimeUpdate(data) {
 
     const username = data.username;
 
-    const part = AppState.parts.find(
-        p => parseInt(p.number) === num
-    );
+    const part = AppState.parts.find(p => parseInt(p.number) === num);
 
+    console.log("BEFORE", num,JSON.stringify(part));
     if (!part) return;
 
     const isMine =
         username === AppState.user.username;
 
     part.status = status;
+
+    console.log(
+    "PART STATE",
+            {
+                num,
+                status,
+                selected_by: part.selected_by,
+                part
+            }
+        );
 
     part.selected_by =
         status === "available"
@@ -1493,21 +1505,34 @@ function handleRealtimeUpdate(data) {
     part.selected_jezaa_by_I =
         isMine && status !== "available";
 
+    console.log("AFTER", num, JSON.stringify(part));    
+
     const box = document.querySelector(
         `[data-jezaa="${num}"]`
     );
 
     if (!box) return;
+
+// مهم جداً
+// إزالة الحالة القديمة أولاً
+box.classList.remove(
+    "available",
+    "taken",
+    "read"
+);
+
+// إضافة الحالة الجديدة
+box.classList.add(status);
+
+console.log(
+    "PART UPDATE:",
+    num,
+    status,
+    box.className
+);
+
 // إذا الختمة مكتملة امنع أي تفاعل
 if (AppState.khetmahStatus === "completed") {
-
-    box.classList.remove(
-        "available",
-        "taken",
-        "read"
-    );
-
-    box.classList.add(status);
 
     box.style.pointerEvents = "none";
     box.style.cursor = "not-allowed";
@@ -1515,8 +1540,6 @@ if (AppState.khetmahStatus === "completed") {
 
     return;
 }
-
-    box.classList.add(status);
 
     box.style.pointerEvents = "auto";
     box.style.opacity = "1";
@@ -1528,6 +1551,13 @@ if (AppState.khetmahStatus === "completed") {
         box.innerHTML = `
             <div>${num}</div>
         `;
+        box.style.border = "none";
+
+                console.log(
+            "AVAILABLE STYLE",
+            box.className,
+            box.style.border
+        );
     }
 
     else {
@@ -1602,9 +1632,9 @@ if (AppState.khetmahStatus === "completed") {
  ******************************/
 function updateLocal(box, num, status) {
     box.classList.remove(
+        "available",
         "taken",
-        "read",
-        "available"
+        "read"
     );
     box.classList.add(status);
 
