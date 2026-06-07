@@ -1891,7 +1891,7 @@ function renderKhetmahMessage() {
 if (AppState.isCreator) {
     const deleteBtn = document.getElementById("delete-khetmah-btn");
 deleteBtn.innerHTML = deleteBtn.innerHTML = `<span>حذف الختمة نهائياً</span>
-        <button onclick="delete_khetmah()" type="button">
+        <button class="delete-full-btn" onclick="delete_khetmah()" type="button">
             <i class="fa fa-close"></i>
             
         </button>
