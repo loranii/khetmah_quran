@@ -23,7 +23,7 @@ function initWebSocket() {
 
     socket.onopen = () => {
 
-        console.log("WebSocket Connected");
+        return;
     };
 
     socket.onclose = () => {
@@ -31,9 +31,7 @@ function initWebSocket() {
         console.log("WebSocket Closed");
 
         // reconnect
-        setTimeout(() => {
-            initWebSocket();
-        }, 3000);
+        setTimeout(() => {initWebSocket();}, 3000);
     };
 
     socket.onerror = (e) => {
@@ -44,10 +42,8 @@ function initWebSocket() {
     socket.onmessage = (e) => {
 
         const data = JSON.parse(e.data);
-
         handleRealtimeUpdate(data);
 
-        console.log("REALTIME MESSAGE DATA----:",data);
     // =========================
     // اكتمال الختمة
     // =========================
@@ -71,20 +67,13 @@ function initWebSocket() {
 
 function initSidebarSocket() {
 
-    console.log("INIT SIDEBAR SOCKET");
-
-    const protocol =
-        window.location.protocol === "https:"
-            ? "wss"
-            : "ws";
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
     sidebarSocket = new WebSocket(
         `${protocol}://${window.location.host}/ws/khetmah-list/`
     );
 
     sidebarSocket.onmessage = function (event) {
-
-            console.log("SIDEBAR SOCKET CONNECTED");
 
         const data = JSON.parse(event.data);
 
@@ -102,8 +91,6 @@ function initSidebarSocket() {
 
 
 function handleSidebarRealtime(data) {
-
-    console.log("SIDEBAR MESSAGE:", data);
 
     if (data.type === "khetmah_created") {
 
@@ -1122,7 +1109,6 @@ function initKhetmahSidebar() {
     try {
         AppState.khetmahs = JSON.parse(el.textContent);
     } catch (e) {
-        console.error("Sidebar parse error", e);
         AppState.khetmahs = [];
     }
 
@@ -1355,7 +1341,6 @@ try {
     const data = await response.json();
 
     if (!response.ok) {
-        console.error(data);
         alert(data.error || "حدث خطأ");
     return;
     }
@@ -1478,24 +1463,12 @@ function handleRealtimeUpdate(data) {
     const username = data.username;
 
     const part = AppState.parts.find(p => parseInt(p.number) === num);
-
-    console.log("BEFORE", num,JSON.stringify(part));
     if (!part) return;
 
     const isMine =
         username === AppState.user.username;
 
     part.status = status;
-
-    console.log(
-    "PART STATE",
-            {
-                num,
-                status,
-                selected_by: part.selected_by,
-                part
-            }
-        );
 
     part.selected_by =
         status === "available"
@@ -1504,9 +1477,6 @@ function handleRealtimeUpdate(data) {
 
     part.selected_jezaa_by_I =
         isMine && status !== "available";
-
-    console.log("AFTER", num, JSON.stringify(part));    
-
     const box = document.querySelector(
         `[data-jezaa="${num}"]`
     );
@@ -1523,13 +1493,6 @@ box.classList.remove(
 
 // إضافة الحالة الجديدة
 box.classList.add(status);
-
-console.log(
-    "PART UPDATE:",
-    num,
-    status,
-    box.className
-);
 
 // إذا الختمة مكتملة امنع أي تفاعل
 if (AppState.khetmahStatus === "completed") {
@@ -1552,12 +1515,6 @@ if (AppState.khetmahStatus === "completed") {
             <div>${num}</div>
         `;
         box.style.border = "none";
-
-                console.log(
-            "AVAILABLE STYLE",
-            box.className,
-            box.style.border
-        );
     }
 
     else {
