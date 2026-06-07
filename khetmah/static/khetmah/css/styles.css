@@ -225,8 +225,9 @@ a {
     height: 400px;
 }
 
-.fa-undo{
+.fa-colse{
     cursor: pointer;
+    color: rgb(255, 0, 0);
 }
 
 /* table th{
@@ -487,6 +488,32 @@ box-shadow: 2px 3px 15px rgba(97, 97, 97, 0.843);
 
     display: flex;
     align-items: center;
+}
+
+
+.delete-full-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 12px;
+  color: rgb(0, 119, 255);
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  padding: 4px 6px;
+}
+
+.delete-full-btn i {
+  font-size: 18px;
+  color: red;
+}
+
+.delete-full-btn:hover {
+  opacity: 0.7;
+   color: red;
 }
 
 
