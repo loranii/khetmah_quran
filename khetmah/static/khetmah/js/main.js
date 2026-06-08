@@ -3126,14 +3126,3 @@ const quranParts = {
 
 
 // ******************************
-
-function showView(viewName) {
-
-    document
-        .querySelectorAll("#app-view > div")
-        .forEach(div => div.classList.add("hidden"));
-
-    document
-        .getElementById(`view-${viewName}`)
-        ?.classList.remove("hidden");
-}
