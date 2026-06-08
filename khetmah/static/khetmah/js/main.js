@@ -1847,11 +1847,12 @@ function renderKhetmahMessage() {
 // =========================
 if (AppState.isCreator) {
     const deleteBtn = document.getElementById("delete-khetmah-btn");
-deleteBtn.innerHTML = deleteBtn.innerHTML = `<span>حذف الختمة نهائياً</span>
-        <button class="delete-full-btn" onclick="delete_khetmah()" type="button">
-            <i class="fa fa-close"></i>
-            
-        </button>
+deleteBtn.innerHTML = deleteBtn.innerHTML = `<button class="btn btn-sm btn-outline-danger"
+        onclick="delete_khetmah()"
+        type="button">
+    حذف الختمة نهائياً
+    <i class="fa fa-close"></i>
+</button>
 `;
     if (AppState.khetmahStatus === "active") {
         html = `
@@ -3122,3 +3123,17 @@ const quranParts = {
     29: { start_surah: "الملك", start_ayah: 1, end_surah: "المزمل", end_ayah: 20, startPage: 562, endPage: 581 },
     30: { start_surah: "المزمل", start_ayah: 1, end_surah: "الناس", end_ayah: 6, startPage: 582, endPage: 604 }
 };
+
+
+// ******************************
+
+function showView(viewName) {
+
+    document
+        .querySelectorAll("#app-view > div")
+        .forEach(div => div.classList.add("hidden"));
+
+    document
+        .getElementById(`view-${viewName}`)
+        ?.classList.remove("hidden");
+}
