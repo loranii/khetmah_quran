@@ -1836,7 +1836,7 @@ function renderKhetmahMessage() {
                 <h6 class="alert-danger wi-1">
                
                 <a href="#" class="nav-link open-login"><i class="fa fa-sign-in" title="Login">&nbsp;</i>Login</a>
-                للمشاركة في هذه الختمة
+                للإشتراك في هذه الختمة
                 </h6>
             `;
         }
