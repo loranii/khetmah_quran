@@ -1832,8 +1832,11 @@ function renderKhetmahMessage() {
         else {
 
             html = `
+            
                 <h6 class="alert-danger wi-1">
-                    للمشاركة في هذه الختمة يجب عليك تسجيل الدخول
+               
+                <a href="#" class="nav-link open-login"><i class="fa fa-sign-in" title="Login">&nbsp;</i>Login</a>
+                للمشاركة في هذه الختمة
                 </h6>
             `;
         }
