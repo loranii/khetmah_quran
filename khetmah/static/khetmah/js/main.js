@@ -3123,5 +3123,3 @@ const quranParts = {
     29: { start_surah: "الملك", start_ayah: 1, end_surah: "المزمل", end_ayah: 20, startPage: 562, endPage: 581 },
     30: { start_surah: "المزمل", start_ayah: 1, end_surah: "الناس", end_ayah: 6, startPage: 582, endPage: 604 }
 };
-
-
